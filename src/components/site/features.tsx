@@ -194,7 +194,7 @@ const LOCK_AT = providerLogos.length * STEP + 0.45; // after the last provider h
 
 function Providers() {
   return (
-    <ul className="mt-5 flex flex-wrap gap-2 pr-12">
+    <ul className="mt-5 flex flex-wrap gap-2 pr-14">
       {providerLogos.map((p, i) => (
         <motion.li
           key={p.name}
@@ -227,18 +227,18 @@ function Providers() {
 function KeyLock() {
   return (
     <motion.svg
-      viewBox="0 0 48 56"
+      viewBox="0 -12 48 68"
       aria-hidden="true"
       variants={{
         rest: { x: 70, rotate: 24, opacity: 0, transition: { duration: 0.25 } },
         hover: {
           x: 0,
           rotate: -14,
-          opacity: 1,
+          opacity: 0.55,
           transition: { type: "spring", stiffness: 200, damping: 18 },
         },
       }}
-      className="pointer-events-none absolute -right-6 bottom-5 w-14 origin-bottom"
+      className="pointer-events-none absolute -right-8 bottom-4 w-20 origin-bottom overflow-visible"
     >
       <motion.path
         d="M14 26V17a10 10 0 0 1 20 0v9"

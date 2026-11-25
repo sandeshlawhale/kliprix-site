@@ -186,7 +186,7 @@ function ClipsDemo({ run }: { run: number }) {
             alt=""
             loading="lazy"
             initial={idle ? false : { opacity: 0, x: 28, y: 34, scale: 0.55, rotate: 10 }}
-            animate={{ opacity: 1, y: 0, scale: 1, rotate: 0 }}
+            animate={{ opacity: 1, x: 0, y: 0, scale: 1, rotate: 0 }}
             transition={{ type: "spring", stiffness: 340, damping: 26, delay: idle ? 0 : 0.14 * i }}
             className="aspect-[9/16] w-[17%] max-w-12 min-w-0 rounded-md border border-line-strong object-cover shadow-[0_10px_20px_-8px_rgb(0_0_0/0.8)]"
           />
@@ -228,8 +228,9 @@ const steps = [
 ];
 
 /**
- * Each card shows its finished state at rest. Hovering a card plays its demo; moving the
- * pointer off stops it and puts the card back at rest. Only the border lights up on hover.
+ * One box split into three steps that share their borders. Each step shows its finished state
+ * at rest; hovering a step plays its demo and lights its outline, and moving the pointer off
+ * stops it and puts the step back at rest.
  */
 export function HowSteps() {
   const reduce = useReducedMotion();
@@ -242,7 +243,7 @@ export function HowSteps() {
   }
 
   return (
-    <div className="mt-12 grid gap-4 lg:grid-cols-3">
+    <div className="mt-12 grid divide-y divide-line rounded-2xl border border-line bg-linear-to-b from-white/[0.03] to-white/[0.01] lg:grid-cols-3 lg:divide-x lg:divide-y-0">
       {steps.map((s, i) => (
         <motion.div
           key={s.n}
@@ -252,7 +253,11 @@ export function HowSteps() {
           transition={{ duration: 0.6, delay: i * 0.12, ease }}
           onHoverStart={() => !reduce && set(i, next.current++)}
           onHoverEnd={() => set(i, 0)}
-          className="group grid min-w-0 gap-6 rounded-2xl border border-line bg-linear-to-b from-white/[0.03] to-white/[0.01] p-6 transition-colors duration-300 hover:border-brand/70 sm:p-7 md:max-lg:grid-cols-2 md:max-lg:items-center"
+          className={cn(
+            "group grid min-w-0 gap-6 p-6 transition-shadow duration-300 hover:shadow-[inset_0_0_0_1px_rgb(255_210_63/0.7)] sm:p-7 md:max-lg:grid-cols-2 md:max-lg:items-center",
+            i === 0 && "rounded-t-2xl lg:rounded-l-2xl lg:rounded-tr-none",
+            i === steps.length - 1 && "rounded-b-2xl lg:rounded-r-2xl lg:rounded-bl-none",
+          )}
         >
           <div>
             <span className="font-mono text-xs text-brand">{s.n}</span>
