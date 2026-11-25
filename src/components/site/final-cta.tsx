@@ -44,8 +44,8 @@ export function FinalCta() {
         </div>
         <div className="reveal mx-auto mt-8 flex w-fit max-w-full flex-col items-center gap-3">
           <div className="flex w-full items-center gap-3 rounded-xl border border-line-strong bg-white/[0.03] py-2.5 pr-2.5 pl-4 text-left">
-            <span className="shrink-0 text-xs text-dim">Windows</span>
-            <code className="min-w-0 flex-1 overflow-x-auto font-mono text-[13px] whitespace-nowrap text-[#d8d8de]">
+            <span className="hidden shrink-0 text-xs text-dim sm:inline">Windows</span>
+            <code className="min-w-0 flex-1 font-mono text-[12.5px] break-all text-[#d8d8de] sm:text-[13px] md:break-normal md:whitespace-nowrap">
               {installCmd}
             </code>
             <CopyButton text={installCmd} className="px-2 py-1 text-xs" />

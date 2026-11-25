@@ -2,7 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion, useInView, useReducedMotion } from "motion/react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { CheckIcon, PlayIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -85,9 +85,10 @@ function PasteDemo({ run }: { run: number }) {
   );
 }
 
-/* ---------- 02: one bar runs 0→100 per stage, finished stages tick off ---------- */
+/* ---------- 02: the bar fills once, stages tick off as it passes them ---------- */
 
 const STAGES = ["Download", "Highlights", "Transcription", "Picking clips", "Editing"];
+const STAGE_MS = 650;
 
 function PipelineDemo({ run }: { run: number }) {
   const idle = run === 0;
@@ -95,10 +96,11 @@ function PipelineDemo({ run }: { run: number }) {
 
   useEffect(() => {
     if (idle) return;
-    if (stage >= STAGES.length) return;
-    const t = setTimeout(() => setStage((s) => s + 1), 750);
-    return () => clearTimeout(t);
-  }, [stage, idle]);
+    const timers = STAGES.map((_, i) =>
+      setTimeout(() => setStage(i + 1), STAGE_MS * (i + 1)),
+    );
+    return () => timers.forEach(clearTimeout);
+  }, [idle]);
 
   const finished = stage >= STAGES.length;
   return (
@@ -110,7 +112,7 @@ function PipelineDemo({ run }: { run: number }) {
           ) : (
             <span className="size-2 animate-pulse rounded-full bg-brand" />
           )}
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="wait" initial={false}>
             <motion.span
               key={finished ? "done" : stage}
               initial={{ opacity: 0, y: 6 }}
@@ -128,29 +130,40 @@ function PipelineDemo({ run }: { run: number }) {
       </div>
       <div className="h-1.5 overflow-hidden rounded-full bg-white/7">
         <motion.i
-          key={finished ? "full" : `${run}-${stage}`}
-          className={cn("block h-full rounded-full", finished ? "bg-ok" : "bg-brand")}
-          initial={{ width: finished ? "100%" : "0%" }}
-          animate={{ width: "100%" }}
-          transition={{ duration: finished ? 0 : 0.7, ease: "easeInOut" }}
+          className="block h-full rounded-full"
+          initial={idle ? false : { width: "0%" }}
+          animate={{
+            width: "100%",
+            backgroundColor: finished ? "#5ad69a" : "#ffd23f",
+          }}
+          transition={{
+            width: { duration: idle ? 0 : (STAGE_MS * STAGES.length) / 1000, ease: "linear" },
+            backgroundColor: { duration: 0.3 },
+          }}
         />
       </div>
       <div className="flex flex-wrap gap-1.5">
         {STAGES.map((s, i) => (
-          <motion.span
+          <span
             key={s}
-            animate={{
-              opacity: i < stage ? 1 : 0.35,
-              borderColor: i < stage ? "rgb(90 214 154 / 0.35)" : "rgb(255 255 255 / 0.12)",
-            }}
             className={cn(
-              "flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10.5px]",
-              i < stage ? "bg-ok/6 text-ok" : "text-muted-foreground",
+              "flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10.5px] transition-colors duration-200",
+              i < stage
+                ? "border-ok/35 bg-ok/6 text-ok"
+                : "border-white/12 text-muted-foreground/60",
             )}
           >
-            {i < stage && <CheckIcon className="size-2.5" />}
+            {i < stage && (
+              <motion.span
+                initial={idle ? false : { scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 500, damping: 20 }}
+              >
+                <CheckIcon className="size-2.5" />
+              </motion.span>
+            )}
             {s}
-          </motion.span>
+          </span>
         ))}
       </div>
     </div>
@@ -165,25 +178,24 @@ function ClipsDemo({ run }: { run: number }) {
   const idle = run === 0;
   return (
     <div className="flex h-full flex-col items-center justify-center gap-2.5">
-      <div className="flex justify-center gap-2" key={run}>
+      <div className="flex w-full justify-center gap-2">
         {CLIPS.map((n, i) => (
           <motion.img
             key={n}
             src={`/media/clip-${n}.jpg`}
             alt=""
             loading="lazy"
-            initial={idle ? false : { opacity: 0, y: 26, scale: 0.7, rotate: -8 }}
+            initial={idle ? false : { opacity: 0, x: 90, y: 70, scale: 0.6, rotate: 14 }}
             animate={{ opacity: 1, y: 0, scale: 1, rotate: 0 }}
-            transition={{ type: "spring", stiffness: 300, damping: 20, delay: idle ? 0 : 0.18 * i }}
-            className="aspect-[9/16] w-12 rounded-md border border-line-strong object-cover shadow-[0_10px_20px_-8px_rgb(0_0_0/0.8)]"
+            transition={{ type: "spring", stiffness: 260, damping: 22, delay: idle ? 0 : 0.16 * i }}
+            className="aspect-[9/16] w-[17%] max-w-12 min-w-0 rounded-md border border-line-strong object-cover shadow-[0_10px_20px_-8px_rgb(0_0_0/0.8)]"
           />
         ))}
       </div>
       <motion.span
-        key={`b-${run}`}
         initial={idle ? false : { opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: idle ? 0 : 0.18 * CLIPS.length + 0.1 }}
+        transition={{ delay: idle ? 0 : 0.16 * CLIPS.length + 0.3 }}
         className="flex items-center gap-1 rounded-full bg-brand/12 px-2.5 py-0.5 text-[11px] font-semibold text-brand"
       >
         <CheckIcon className="size-3" /> 5 shorts · 1080×1920
@@ -200,66 +212,54 @@ const steps = [
     title: "Paste up to 3 links",
     text: "YouTube videos or stream VODs. Kliprix checks the length and whether a chat replay exists.",
     Demo: PasteDemo,
-    length: 2200,
   },
   {
     n: "02",
     title: "It finds the moments",
     text: "Chat activity, audio energy, motion and the transcript are combined, then your AI picks the best clips.",
     Demo: PipelineDemo,
-    length: 4200,
   },
   {
     n: "03",
     title: "Download and post",
     text: "Up to 5 vertical 1080×1920 shorts per video, each with a title, description, hashtags and a LinkedIn post.",
     Demo: ClipsDemo,
-    length: 1600,
   },
 ];
 
 /**
- * Each card plays its demo once, one after another, when the row scrolls into view,
- * and replays on hover. With reduced motion the cards just show the finished state.
+ * Each card shows its finished state at rest. Hovering a card plays its demo; moving the
+ * pointer off stops it and puts the card back at rest. Only the border lights up on hover.
  */
 export function HowSteps() {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, amount: 0.4 });
   const reduce = useReducedMotion();
+  // 0 = at rest; any other number is a play run (a new number restarts the demo).
   const [runs, setRuns] = useState([0, 0, 0]);
+  const next = useRef(1);
 
-  useEffect(() => {
-    if (!inView || reduce) return;
-    const timers: ReturnType<typeof setTimeout>[] = [];
-    let at = 0;
-    steps.forEach((s, i) => {
-      timers.push(setTimeout(() => setRuns((r) => r.map((v, j) => (j === i ? v + 1 : v))), at));
-      at += s.length * 0.55;
-    });
-    return () => timers.forEach(clearTimeout);
-  }, [inView, reduce]);
-
-  function replay(i: number) {
-    if (reduce) return;
-    setRuns((r) => r.map((v, j) => (j === i ? v + 1 : v)));
+  function set(i: number, v: number) {
+    setRuns((r) => r.map((x, j) => (j === i ? v : x)));
   }
 
   return (
-    <div ref={ref} className="mt-12 grid gap-4 md:grid-cols-3">
+    <div className="mt-12 grid gap-4 lg:grid-cols-3">
       {steps.map((s, i) => (
         <motion.div
           key={s.n}
           initial={{ opacity: 0, y: 24 }}
-          animate={inView ? { opacity: 1, y: 0 } : undefined}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.6, delay: i * 0.12, ease }}
-          whileHover={{ y: -4 }}
-          onHoverStart={() => replay(i)}
-          className="group rounded-2xl border border-line bg-linear-to-b from-white/[0.03] to-white/[0.01] px-7 pt-7 pb-8 transition-[border-color,box-shadow] duration-300 hover:border-brand/70 hover:shadow-[0_0_0_1px_rgb(255_210_63/0.25),0_20px_60px_-20px_rgb(255_210_63/0.35)]"
+          onHoverStart={() => !reduce && set(i, next.current++)}
+          onHoverEnd={() => set(i, 0)}
+          className="group grid min-w-0 gap-6 rounded-2xl border border-line bg-linear-to-b from-white/[0.03] to-white/[0.01] p-6 transition-colors duration-300 hover:border-brand/70 sm:p-7 md:max-lg:grid-cols-2 md:max-lg:items-center"
         >
-          <span className="font-mono text-xs text-brand">{s.n}</span>
-          <h3 className="mt-3.5 mb-2 text-[21px] font-semibold">{s.title}</h3>
-          <p className="text-[15px] leading-relaxed text-muted-foreground">{s.text}</p>
-          <div className="mt-6 h-[150px] rounded-xl border border-line bg-panel p-4 transition-colors group-hover:border-brand/25">
+          <div>
+            <span className="font-mono text-xs text-brand">{s.n}</span>
+            <h3 className="mt-3.5 mb-2 text-[21px] font-semibold">{s.title}</h3>
+            <p className="text-[15px] leading-relaxed text-muted-foreground">{s.text}</p>
+          </div>
+          <div className="h-[150px] min-w-0 overflow-hidden rounded-xl border border-line bg-panel p-4 lg:self-end">
             <s.Demo key={runs[i]} run={runs[i]} />
           </div>
         </motion.div>

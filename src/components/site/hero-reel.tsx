@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { motion } from "motion/react";
+import { motion, useMotionValue, useReducedMotion, useSpring } from "motion/react";
 
 // Real Kliprix exports, cut to 8 s muted loops (see site/README.md for how to replace them).
 const phones = [
@@ -89,12 +89,66 @@ export function HeroReel() {
             scale: { delay: 0.9 + i * 0.15, duration: 0.5 },
             y: { delay: 1.4 + i * 0.4, duration: 4, repeat: Infinity, ease: "easeInOut" },
           }}
-          className={`absolute z-10 hidden items-center gap-2 rounded-xl border border-line-strong bg-[#14141a]/85 px-3 py-2 text-[13px] font-medium whitespace-nowrap shadow-[0_12px_30px_-8px_rgb(0_0_0/0.7)] backdrop-blur-md lg:flex ${c.pos}`}
+          className={`absolute z-10 hidden lg:block ${c.pos}`}
         >
-          <i className={`size-2 rounded-full ${c.dot}`} />
-          {c.text}
+          <MagneticChip dot={c.dot}>{c.text}</MagneticChip>
         </motion.div>
       ))}
     </div>
+  );
+}
+
+/**
+ * A pill that leans toward the pointer when it comes close and springs back when it leaves.
+ * Only follows a mouse (not touch), and never with reduced motion.
+ */
+function MagneticChip({ dot, children }: { dot: string; children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const reduce = useReducedMotion();
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const sx = useSpring(x, { stiffness: 220, damping: 16, mass: 0.6 });
+  const sy = useSpring(y, { stiffness: 220, damping: 16, mass: 0.6 });
+
+  useEffect(() => {
+    if (reduce) return;
+    const RANGE = 140; // px around the pill's edge where it starts to pull
+    const PULL = 0.35;
+    const MAX = 26; // px the pill can travel
+    const clamp = (v: number) => Math.max(-MAX, Math.min(MAX, v));
+    const onMove = (e: PointerEvent) => {
+      const el = ref.current;
+      if (!el || e.pointerType !== "mouse") return;
+      const r = el.getBoundingClientRect();
+      const cx = r.left + r.width / 2 - x.get();
+      const cy = r.top + r.height / 2 - y.get();
+      const dx = e.clientX - cx;
+      const dy = e.clientY - cy;
+      const near = Math.abs(dx) < r.width / 2 + RANGE && Math.abs(dy) < r.height / 2 + RANGE;
+      x.set(near ? clamp(dx * PULL) : 0);
+      y.set(near ? clamp(dy * PULL) : 0);
+    };
+    const reset = () => {
+      x.set(0);
+      y.set(0);
+    };
+    window.addEventListener("pointermove", onMove, { passive: true });
+    document.addEventListener("pointerleave", reset);
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      document.removeEventListener("pointerleave", reset);
+    };
+  }, [reduce, x, y]);
+
+  return (
+    <motion.div
+      ref={ref}
+      style={{ x: sx, y: sy }}
+      whileHover={{ scale: 1.06 }}
+      className="flex cursor-default items-center gap-2 rounded-xl border border-line-strong bg-[#14141a]/85 px-3 py-2 text-[13px] font-medium whitespace-nowrap shadow-[0_12px_30px_-8px_rgb(0_0_0/0.7)] backdrop-blur-md transition-colors hover:border-brand/60"
+    >
+      <i className={`size-2 rounded-full ${dot}`} />
+      {children}
+    </motion.div>
   );
 }

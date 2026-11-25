@@ -1,18 +1,27 @@
 "use client";
 
 /* eslint-disable @next/next/no-img-element */
-import { useEffect, useState } from "react";
-import { motion } from "motion/react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
-/** Advances a word index on a timer; stays still for reduced motion. */
+/** True while the pointer is on the surrounding feature card. */
+export const HoverContext = createContext(false);
+
+/**
+ * Advances a word index on a timer, but only while the card is hovered. Leaving the card
+ * stops it and puts it back on the first word. Stays still for reduced motion.
+ */
 function useTicker(length: number, ms = 520) {
+  const active = useContext(HoverContext);
   const [i, setI] = useState(0);
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!active || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const t = setInterval(() => setI((x) => (x + 1) % length), ms);
-    return () => clearInterval(t);
-  }, [length, ms]);
+    return () => {
+      clearInterval(t);
+      setI(0);
+    };
+  }, [active, length, ms]);
   return i;
 }
 
@@ -66,19 +75,11 @@ export function CaptionStyles() {
   return (
     <div className="mt-6 grid grid-cols-3 gap-2">
       {styles.map((s, idx) => (
-        <motion.button
+        <button
           key={s.name}
           type="button"
           onClick={() => setSel(idx)}
           aria-pressed={sel === idx}
-          variants={{
-            rest: { y: 0, rotate: 0 },
-            hover: {
-              y: -8,
-              rotate: (idx - 1) * 3,
-              transition: { delay: idx * 0.08, type: "spring", stiffness: 300, damping: 18 },
-            },
-          }}
           className="group text-center"
         >
           <div
@@ -105,20 +106,20 @@ export function CaptionStyles() {
           >
             {s.name}
           </span>
-        </motion.button>
+        </button>
       ))}
     </div>
   );
 }
 
 const lines = {
-  English: ["Hello,", "how", "are", "you?"],
-  Hinglish: ["Namaste", "kaise", "ho", "aap?"],
+  English: ["So,", "how", "are", "you", "all?"],
+  Hinglish: ["Toh,", "Kaise", "hai", "aap", "log?"],
 };
 
 export function LanguageToggle() {
   const [lang, setLang] = useState<keyof typeof lines>("Hinglish");
-  const i = useTicker(4, 600);
+  const i = useTicker(5, 520);
   return (
     <div>
       <div
@@ -144,17 +145,13 @@ export function LanguageToggle() {
           </button>
         ))}
       </div>
-      <motion.p
-        variants={{ rest: { scale: 1 }, hover: { scale: 1.1 } }}
-        transition={{ type: "spring", stiffness: 260, damping: 18 }}
-        className="caption-text mt-5 text-center text-[22px] leading-tight"
-      >
+      <p className="caption-text mt-5 text-center text-[22px] leading-tight">
         {lines[lang].map((w, j) => (
           <span key={w} className={cn(j === i && "text-brand")}>
             {w}{" "}
           </span>
         ))}
-      </motion.p>
+      </p>
     </div>
   );
 }

@@ -10,8 +10,8 @@ export function Nav() {
         <a href="#top" aria-label="Kliprix home">
           <Logo />
         </a>
-        <nav className="hidden md:block" aria-label="Main">
-          <ul className="flex gap-7 text-sm text-muted-foreground">
+        <nav className="hidden lg:block" aria-label="Main">
+          <ul className="flex gap-7 text-sm whitespace-nowrap text-muted-foreground">
             {nav.map((n) => (
               <li key={n.href}>
                 <a href={n.href} className="transition-colors hover:text-foreground">
@@ -26,7 +26,7 @@ export function Nav() {
             href={repoUrl}
             target="_blank"
             rel="noreferrer"
-            className="hidden items-center gap-2 text-[13px] text-muted-foreground transition-colors hover:text-foreground sm:flex"
+            className="hidden items-center gap-2 text-[13px] whitespace-nowrap text-muted-foreground transition-colors hover:text-foreground sm:flex"
           >
             <GitHubIcon className="size-[15px]" />
             Star on GitHub

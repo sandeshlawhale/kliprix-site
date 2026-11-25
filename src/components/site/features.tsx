@@ -1,33 +1,35 @@
 "use client";
 
 /* eslint-disable @next/next/no-img-element */
+import { useState } from "react";
 import { motion, type Variants } from "motion/react";
 import { CheckIcon, CopyIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Container, SectionHead } from "./section-head";
-import { CaptionStyles, LanguageToggle } from "./caption-demos";
+import { CaptionStyles, HoverContext, LanguageToggle } from "./caption-demos";
+import { providerLogos } from "./provider-logos";
 
 const spring = { type: "spring", stiffness: 260, damping: 22 } as const;
 
 /**
- * A bento card. Hovering it sets the "hover" variant, which every motion child inside
- * picks up, so each card's own little animation plays while the pointer is on it.
+ * A bento card. Hovering it sets the "hover" variant, which every motion child inside picks
+ * up, and shares the hover state through HoverContext for the demos that run on a timer.
+ * Leaving the card returns everything to rest. The card itself only lights its border.
  */
 function Card({ className, children }: { className?: string; children: React.ReactNode }) {
+  const [on, setOn] = useState(false);
   return (
     <motion.div
       initial="rest"
-      animate="rest"
-      whileHover="hover"
-      variants={{ rest: { y: 0 }, hover: { y: -4 } }}
-      transition={spring}
+      animate={on ? "hover" : "rest"}
+      onHoverStart={() => setOn(true)}
+      onHoverEnd={() => setOn(false)}
       className={cn(
-        "reveal group relative overflow-hidden rounded-[20px] border border-line bg-linear-to-b from-white/[0.03] to-white/[0.01] p-7 transition-[border-color,box-shadow] duration-300 hover:border-brand/70 hover:shadow-[0_0_0_1px_rgb(255_210_63/0.25),0_20px_60px_-20px_rgb(255_210_63/0.3)]",
+        "reveal relative min-w-0 overflow-hidden rounded-[20px] border border-line bg-linear-to-b from-white/[0.03] to-white/[0.01] p-6 transition-colors duration-300 hover:border-brand/70 sm:p-7",
         className,
       )}
     >
-      <div className="pointer-events-none absolute -top-24 -right-24 size-56 rounded-full bg-brand/0 blur-3xl transition-colors duration-500 group-hover:bg-brand/10" />
-      <div className="relative">{children}</div>
+      <HoverContext.Provider value={on}>{children}</HoverContext.Provider>
     </motion.div>
   );
 }
@@ -74,10 +76,10 @@ function Signals() {
         {signals.map((sig, k) => (
           <div
             key={sig.label}
-            className="grid grid-cols-[96px_1fr] items-center gap-3.5 text-[12.5px] text-muted-foreground"
+            className="grid grid-cols-[96px_minmax(0,1fr)] items-center gap-3.5 text-[12.5px] text-muted-foreground"
           >
             {sig.label}
-            <div className="flex h-[30px] items-end gap-[3px]">
+            <div className="flex h-[30px] min-w-0 items-end gap-px sm:gap-[3px]">
               {bars(sig.seed, k * 4).map((b, i) => (
                 <motion.i
                   key={i}
@@ -155,10 +157,10 @@ function CopyRows() {
       {posts.map((p, i) => (
         <div
           key={p.k}
-          className="flex items-center gap-3 rounded-lg border border-line bg-white/[0.02] px-3 py-2 text-[12.5px]"
+          className="flex min-w-0 items-center gap-3 rounded-lg border border-line bg-white/[0.02] px-3 py-2 text-[12.5px]"
         >
           <span className="w-16 shrink-0 text-dim">{p.k}</span>
-          <span className="truncate text-[#d8d8de]">{p.v}</span>
+          <span className="min-w-0 truncate text-[#d8d8de]">{p.v}</span>
           <span className="relative ml-auto h-5 w-[68px] shrink-0">
             <motion.span
               variants={{
@@ -185,31 +187,114 @@ function CopyRows() {
   );
 }
 
-/* ---------- AI providers: they light up one at a time ---------- */
+/* ---------- AI providers light up one at a time, then the lock closes ---------- */
 
-const ais = ["Gemini", "Claude", "OpenAI", "OpenRouter", "Local model"];
+const STEP = 0.14;
+const LOCK_AT = providerLogos.length * STEP + 0.45; // after the last provider has lit up
 
 function Providers() {
   return (
-    <ul className="mt-5 flex flex-wrap gap-2">
-      {ais.map((a, i) => (
+    <ul className="mt-5 flex flex-wrap gap-2 pr-12">
+      {providerLogos.map((p, i) => (
         <motion.li
-          key={a}
+          key={p.name}
           variants={{
-            rest: { borderColor: "rgb(255 255 255 / 0.14)", color: "#d8d8de", y: 0 },
+            rest: { borderColor: "rgb(255 255 255 / 0.14)", color: "#c9c9d1" },
             hover: {
               borderColor: "rgb(255 210 63 / 0.6)",
               color: "#ffd23f",
-              y: [0, -4, 0],
-              transition: { delay: i * 0.12, duration: 0.4 },
+              transition: { delay: i * STEP, duration: 0.25 },
             },
           }}
-          className="rounded-full border px-3 py-1.5 text-[13px]"
+          className="flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[12.5px]"
         >
-          {a}
+          <svg
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            fillRule="evenodd"
+            aria-hidden="true"
+            className="size-3.5"
+            dangerouslySetInnerHTML={{ __html: p.svg }}
+          />
+          {p.name}
         </motion.li>
       ))}
     </ul>
+  );
+}
+
+/** A padlock that slides in half hidden past the card's right edge, open, then snaps shut. */
+function KeyLock() {
+  return (
+    <motion.svg
+      viewBox="0 0 48 56"
+      aria-hidden="true"
+      variants={{
+        rest: { x: 70, rotate: 24, opacity: 0, transition: { duration: 0.25 } },
+        hover: {
+          x: 0,
+          rotate: -14,
+          opacity: 1,
+          transition: { type: "spring", stiffness: 200, damping: 18 },
+        },
+      }}
+      className="pointer-events-none absolute -right-6 bottom-5 w-14 origin-bottom"
+    >
+      <motion.path
+        d="M14 26V17a10 10 0 0 1 20 0v9"
+        fill="none"
+        strokeWidth="5"
+        strokeLinecap="round"
+        variants={{
+          rest: { y: -8, stroke: "#9a9aa6" },
+          hover: {
+            y: [-8, -8, 0],
+            stroke: ["#9a9aa6", "#9a9aa6", "#ffd23f"],
+            transition: { duration: LOCK_AT + 0.2, times: [0, 0.82, 1], ease: "easeIn" },
+          },
+        }}
+      />
+      <motion.rect
+        x="6"
+        y="24"
+        width="36"
+        height="30"
+        rx="7"
+        variants={{
+          rest: { fill: "#2a2a31" },
+          hover: {
+            fill: ["#2a2a31", "#2a2a31", "#ffd23f"],
+            transition: { duration: LOCK_AT + 0.25, times: [0, 0.82, 1] },
+          },
+        }}
+      />
+      <motion.circle
+        cx="24"
+        cy="37"
+        r="3.6"
+        variants={{
+          rest: { fill: "#9a9aa6" },
+          hover: {
+            fill: ["#9a9aa6", "#9a9aa6", "#111111"],
+            transition: { duration: LOCK_AT + 0.25, times: [0, 0.82, 1] },
+          },
+        }}
+      />
+      <motion.rect
+        x="22.2"
+        y="38"
+        width="3.6"
+        height="8"
+        rx="1.8"
+        variants={{
+          rest: { fill: "#9a9aa6" },
+          hover: {
+            fill: ["#9a9aa6", "#9a9aa6", "#111111"],
+            transition: { duration: LOCK_AT + 0.25, times: [0, 0.82, 1] },
+          },
+        }}
+      />
+    </motion.svg>
   );
 }
 
@@ -265,8 +350,8 @@ export function Features() {
         title="Everything a clip needs."
         sub="Nothing you have to fiddle with."
       />
-      <div className="mt-14 grid gap-4 md:grid-cols-6">
-        <Card className="md:col-span-4">
+      <div className="mt-14 grid gap-4 md:grid-cols-2 lg:grid-cols-6">
+        <Card className="md:col-span-2 lg:col-span-4">
           <CardTitle>Finds highlights the way viewers do</CardTitle>
           <CardText>
             Four signals are read together, so it picks the moment chat lost it and not just a loud
@@ -281,27 +366,28 @@ export function Features() {
           </div>
         </Card>
 
-        <Card className="md:col-span-2">
+        <Card className="lg:col-span-2">
           <CardTitle>3 caption styles</CardTitle>
           <CardText>The spoken word lights up as it&apos;s said.</CardText>
           <CaptionStyles />
         </Card>
 
-        <Card className="md:col-span-2">
+        <Card className="lg:col-span-2">
           <CardTitle>English or Hinglish</CardTitle>
           <CardText>Hindi written the way your audience types it in chat.</CardText>
           <LanguageToggle />
         </Card>
 
-        <Card className="md:col-span-2">
+        <Card className="lg:col-span-2">
           <CardTitle>Your AI, your key</CardTitle>
           <CardText>
             Pick any provider. Free tiers are enough, or run a local model with no key at all.
           </CardText>
           <Providers />
+          <KeyLock />
         </Card>
 
-        <Card className="md:col-span-2">
+        <Card className="lg:col-span-2">
           <CardTitle>Quick edits, no timeline</CardTitle>
           <CardText>
             Trim, fix a caption word, split or crop, preview live, then download at full quality.
@@ -309,8 +395,8 @@ export function Features() {
           <Editor />
         </Card>
 
-        <Card className="md:col-span-3">
-          <div className="grid items-center gap-4 sm:grid-cols-[1fr_auto]">
+        <Card className="lg:col-span-3">
+          <div className="grid items-center gap-4 sm:max-md:grid-cols-[1fr_auto] xl:grid-cols-[1fr_auto]">
             <div>
               <CardTitle>Framed for vertical</CardTitle>
               <CardText>
@@ -318,12 +404,12 @@ export function Features() {
                 title on top and captions below. 1080×1920, 30 fps.
               </CardText>
             </div>
-            <div className="sm:w-[230px]">
+            <div className="sm:max-md:w-[230px] xl:w-[230px]">
               <Reframe />
             </div>
           </div>
         </Card>
-        <Card className="md:col-span-3">
+        <Card className="lg:col-span-3">
           <CardTitle>Copy-ready post text</CardTitle>
           <CardText>
             Title, description, hashtags and a LinkedIn post for every clip, one click to copy.

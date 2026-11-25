@@ -58,7 +58,7 @@ A static site cannot write files after it is deployed, so reviews take this path
 ```
 
 `url` is optional (a link to where the review was posted). As soon as the list has entries, the
-Feedback section shows the first two as cards beside the form. Only publish real reviews.
+Feedback section shows the first two below the form. Only publish real reviews.
 
 ## Media
 
