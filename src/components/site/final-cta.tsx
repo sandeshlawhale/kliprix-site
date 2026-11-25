@@ -55,6 +55,8 @@ export function FinalCta() {
             else.{" "}
             <a
               href={`${repoUrl}#requirements`}
+              target="_blank"
+              rel="noreferrer"
               className="underline underline-offset-2 hover:text-foreground"
             >
               Full setup guide

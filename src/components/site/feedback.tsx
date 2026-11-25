@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { issuesNewUrl, reviews, site, type Review } from "@/lib/site";
+import { reviews, site, type Review } from "@/lib/site";
 import { Container, SectionHead } from "./section-head";
 
 type Kind = "review" | "idea" | "bug";
@@ -31,9 +31,9 @@ const kinds: { id: Kind; title: string; label: string; placeholder: string }[] =
 
 /**
  * One plain form for reviews, ideas and bug reports.
- * It goes to the form service in data/site.json ("reviewFormEndpoint") when one is set,
- * otherwise it opens a pre-filled GitHub issue the visitor posts. Approved reviews are copied
- * into data/reviews.json by hand, so nothing on the page is invented.
+ * It is sent privately to the form service in data/site.json ("reviewFormEndpoint"), which
+ * emails it to the owner; nothing is posted publicly. Approved reviews are copied into
+ * data/reviews.json by hand, so nothing on the page is invented.
  */
 function FeedbackForm() {
   const [kind, setKind] = useState<Kind>("review");
@@ -43,7 +43,7 @@ function FeedbackForm() {
   const [trap, setTrap] = useState(""); // honeypot for bots, hidden from people
   const [errors, setErrors] = useState<{ name?: string; text?: string }>({});
   const [sending, setSending] = useState(false);
-  const [done, setDone] = useState<"sent" | "github" | null>(null);
+  const [done, setDone] = useState(false);
 
   const k = kinds.find((x) => x.id === kind)!;
 
@@ -65,20 +65,10 @@ function FeedbackForm() {
     };
 
     if (!site.reviewFormEndpoint) {
-      const body = [
-        `**From:** ${payload.name}`,
-        ...(payload.rating ? [`**Rating:** ${"★".repeat(rating)}${"☆".repeat(5 - rating)}`] : []),
-        "",
-        payload.text,
-      ].join("\n");
-      const prefix = { review: "Review", idea: "Idea", bug: "Bug" }[k.id];
-      const url = `${issuesNewUrl}?${new URLSearchParams({
-        title: `${prefix}: ${payload.text.slice(0, 60)}${payload.text.length > 60 ? "…" : ""}`,
-        body,
-        labels: k.label,
-      })}`;
-      window.open(url, "_blank", "noopener,noreferrer");
-      setDone("github");
+      // The owner has not added a form address to data/site.json yet (see site/README.md).
+      toast.error("Feedback isn't open yet", {
+        description: "Please try again later.",
+      });
       return;
     }
 
@@ -90,7 +80,7 @@ function FeedbackForm() {
         body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error(String(res.status));
-      setDone("sent");
+      setDone(true);
     } catch {
       toast.error("Couldn't send it", {
         description: "Please try again in a minute, or open an issue on GitHub.",
@@ -107,15 +97,13 @@ function FeedbackForm() {
         <div>
           <p className="font-semibold">Thanks, {name.trim()}.</p>
           <p className="mt-1 text-[15px] text-muted-foreground">
-            {done === "github"
-              ? "GitHub opened in a new tab with your message filled in. Press “Create” there to post it."
-              : "We read every message. Reviews show up here once they're checked."}
+            We read every message. Reviews show up here once they&apos;re checked.
           </p>
           <button
             type="button"
             onClick={() => {
               setText("");
-              setDone(null);
+              setDone(false);
             }}
             className="mt-3 text-[13px] text-muted-foreground underline underline-offset-4 hover:text-foreground"
           >
@@ -218,7 +206,7 @@ function FeedbackForm() {
           {sending ? "Sending…" : "Send"}
         </Button>
         <span className="text-xs text-dim">
-          {site.reviewFormEndpoint ? "Goes straight to us." : "Opens a pre-filled GitHub issue."}
+          Sent privately to us. Nothing is posted publicly.
         </span>
       </div>
     </form>

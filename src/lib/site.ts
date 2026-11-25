@@ -8,7 +8,7 @@ export type SiteConfig = {
   repo: string;
   /** Direct download of the source code. */
   downloadZip: string;
-  /** Optional form service URL (Formspree, Getform, ...). Empty: reviews open a GitHub issue. */
+  /** Form service URL (e.g. Formspree) that emails feedback to the owner. Empty: the form is off. */
   reviewFormEndpoint: string;
 };
 
@@ -28,7 +28,6 @@ export const site: SiteConfig = siteJson;
 export const reviews = reviewsJson as Review[];
 
 export const repoUrl = `https://github.com/${site.repo}`;
-export const issuesNewUrl = `${repoUrl}/issues/new`;
 
 export const nav = [
   { href: "#how", label: "How it works" },

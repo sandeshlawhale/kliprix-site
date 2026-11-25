@@ -35,13 +35,14 @@ Edit a file, then rebuild and redeploy. The data is read at build time.
 
 ### How feedback and reviews work
 
-A static site cannot write files after it is deployed, so reviews take this path:
+A static site cannot write files after it is deployed, and feedback must stay private (a public
+GitHub issue would let anyone post on the site's behalf), so feedback goes to a form service:
 
-1. A visitor picks what to share (a review, an idea or a bug report) and writes it.
-2. **If `reviewFormEndpoint` is empty** (the default), the form opens a pre-filled GitHub issue
-   in a new tab (labelled `review`, `enhancement` or `bug`), and the visitor presses "Create". **If you set it** to a form service URL
-   (for example a free [Formspree](https://formspree.io) form: `https://formspree.io/f/<id>`),
-   the review is sent there and you get it by email.
+1. Create a free form at [Formspree](https://formspree.io) (or a similar service) and put its URL
+   in `data/site.json` → `reviewFormEndpoint`, for example `https://formspree.io/f/<id>`.
+   **Until this is set, the form refuses to send** ("Feedback isn't open yet").
+2. A visitor picks Review, Idea or Bug and writes it. It is sent privately and you get it by
+   email. Nothing is posted publicly.
 3. You read it and copy the ones you approve into `data/reviews.json`:
 
 ```json

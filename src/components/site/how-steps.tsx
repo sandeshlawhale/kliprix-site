@@ -185,9 +185,9 @@ function ClipsDemo({ run }: { run: number }) {
             src={`/media/clip-${n}.jpg`}
             alt=""
             loading="lazy"
-            initial={idle ? false : { opacity: 0, x: 90, y: 70, scale: 0.6, rotate: 14 }}
+            initial={idle ? false : { opacity: 0, x: 28, y: 34, scale: 0.55, rotate: 10 }}
             animate={{ opacity: 1, y: 0, scale: 1, rotate: 0 }}
-            transition={{ type: "spring", stiffness: 260, damping: 22, delay: idle ? 0 : 0.16 * i }}
+            transition={{ type: "spring", stiffness: 340, damping: 26, delay: idle ? 0 : 0.14 * i }}
             className="aspect-[9/16] w-[17%] max-w-12 min-w-0 rounded-md border border-line-strong object-cover shadow-[0_10px_20px_-8px_rgb(0_0_0/0.8)]"
           />
         ))}
