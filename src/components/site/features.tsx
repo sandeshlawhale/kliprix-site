@@ -26,7 +26,7 @@ function Card({ className, children }: { className?: string; children: React.Rea
       onHoverStart={() => setOn(true)}
       onHoverEnd={() => setOn(false)}
       className={cn(
-        "reveal relative min-w-0 overflow-hidden rounded-[20px] border border-line bg-linear-to-b from-white/[0.03] to-white/[0.01] p-6 grayscale transition-[filter,border-color] duration-700 ease-out hover:border-brand/70 hover:grayscale-0 sm:p-7",
+        "reveal relative min-w-0 overflow-hidden rounded-[20px] border border-line bg-linear-to-b from-white/[0.03] to-white/[0.01] p-6 transition-[filter,border-color] duration-700 ease-out hover:border-brand/70 sm:p-7 lg:grayscale lg:hover:grayscale-0",
         className,
       )}
     >

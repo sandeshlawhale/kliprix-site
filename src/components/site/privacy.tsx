@@ -89,7 +89,7 @@ export function Privacy() {
         lede="No account, no cloud and no tracking. Your API key is kept encrypted on your PC, or only in memory if you prefer."
       />
 
-      <div className="mt-10 grid gap-4 text-left sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-8 grid grid-cols-2 gap-3 text-left sm:mt-10 sm:gap-4 lg:grid-cols-4">
         {facts.map((f, i) => (
           <motion.div
             key={f.title}
@@ -97,16 +97,16 @@ export function Privacy() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.4 }}
             transition={{ duration: 0.6, delay: i * 0.1, ease }}
-            className="group relative overflow-hidden rounded-2xl border border-line bg-linear-to-b from-white/[0.04] to-white/[0.01] p-6 transition-colors duration-300 hover:border-brand/60"
+            className="group relative overflow-hidden rounded-2xl border border-line bg-linear-to-b from-white/[0.04] to-white/[0.01] p-4 transition-colors duration-300 hover:border-brand/60 sm:p-6"
           >
-            <span className="grid size-10 place-items-center rounded-xl border border-line-strong bg-white/[0.03] text-brand transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6">
-              <f.icon className="size-5" />
+            <span className="grid size-8 place-items-center rounded-lg sm:size-10 sm:rounded-xl border border-line-strong bg-white/[0.03] text-brand transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6">
+              <f.icon className="size-4 sm:size-5" />
             </span>
-            <b className="mt-6 block text-[44px] leading-none font-semibold tracking-tight">
+            <b className="mt-4 block text-[32px] leading-none font-semibold tracking-tight sm:mt-6 sm:text-[44px]">
               <CountUp to={f.to} prefix={f.prefix} suffix={f.suffix} />
             </b>
-            <span className="mt-2 block text-[15px] font-semibold">{f.title}</span>
-            <span className="mt-1 block text-sm leading-relaxed text-muted-foreground">
+            <span className="mt-2 block text-[14px] font-semibold sm:text-[15px]">{f.title}</span>
+            <span className="mt-1 block text-[12.5px] leading-snug text-muted-foreground sm:text-sm sm:leading-relaxed">
               {f.text}
             </span>
           </motion.div>
