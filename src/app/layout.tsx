@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import localFont from "next/font/local";
 import { Toaster } from "@/components/ui/sonner";
 import { RevealObserver } from "@/components/site/reveal";
+import { MotionProvider } from "@/components/site/motion-provider";
 import { site } from "@/lib/site";
 import "./globals.css";
 
@@ -47,7 +48,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         />
       </head>
       <body>
-        {children}
+        <MotionProvider>{children}</MotionProvider>
         <RevealObserver />
         <Toaster position="bottom-center" />
       </body>

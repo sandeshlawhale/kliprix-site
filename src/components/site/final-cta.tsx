@@ -4,10 +4,7 @@ import { repoUrl, site } from "@/lib/site";
 import { CopyButton } from "./copy-button";
 import { GitHubIcon, Logo } from "./icons";
 
-const installs = [
-  { os: "Windows", cmd: `git clone ${repoUrl}.git && cd Kliprix && scripts\\start.bat` },
-  { os: "macOS / Linux", cmd: `git clone ${repoUrl}.git && cd Kliprix && ./scripts/start.sh` },
-];
+const installCmd = `git clone ${repoUrl}.git && cd Kliprix && scripts\\start.bat`;
 
 export function FinalCta() {
   return (
@@ -45,20 +42,15 @@ export function FinalCta() {
             Star on GitHub
           </a>
         </div>
-        <div className="reveal mx-auto mt-8 grid max-w-[760px] gap-2.5 text-left">
-          {installs.map((i) => (
-            <div
-              key={i.os}
-              className="flex items-center gap-3 rounded-xl border border-line-strong bg-white/[0.03] px-4 py-3"
-            >
-              <span className="w-24 shrink-0 text-xs text-dim">{i.os}</span>
-              <code className="min-w-0 flex-1 overflow-x-auto font-mono text-[13px] whitespace-nowrap text-[#d8d8de]">
-                {i.cmd}
-              </code>
-              <CopyButton text={i.cmd} />
-            </div>
-          ))}
-          <p className="mt-1 text-center text-xs text-dim">
+        <div className="reveal mx-auto mt-8 flex w-fit max-w-full flex-col items-center gap-3">
+          <div className="flex w-full items-center gap-3 rounded-xl border border-line-strong bg-white/[0.03] py-2.5 pr-2.5 pl-4 text-left">
+            <span className="shrink-0 text-xs text-dim">Windows</span>
+            <code className="min-w-0 flex-1 overflow-x-auto font-mono text-[13px] whitespace-nowrap text-[#d8d8de]">
+              {installCmd}
+            </code>
+            <CopyButton text={installCmd} className="px-2 py-1 text-xs" />
+          </div>
+          <p className="text-center text-xs text-dim">
             Needs Python 3.11 or 3.12, Node.js 22+ and FFmpeg. The first start installs everything
             else.{" "}
             <a
@@ -94,8 +86,8 @@ export function Footer() {
           >
             Docs
           </a>
-          <a href="#changelog" className="hover:text-foreground">
-            Changelog
+          <a href="#feedback" className="hover:text-foreground">
+            Feedback
           </a>
           <a href="#privacy" className="hover:text-foreground">
             Privacy

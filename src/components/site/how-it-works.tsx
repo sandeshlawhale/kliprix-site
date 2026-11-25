@@ -1,63 +1,38 @@
 /* eslint-disable @next/next/no-img-element */
-import { CheckIcon } from "lucide-react";
 import { Container, SectionHead } from "./section-head";
 import { CopyButton } from "./copy-button";
-
-const providers = ["Gemini", "Claude", "OpenAI", "OpenRouter", "LM Studio", "llama.cpp"];
+import { HowSteps } from "./how-steps";
+import { providerLogos } from "./provider-logos";
 
 export function ProviderStrip() {
   return (
-    <div className="border-y border-line py-6">
-      <div className="mx-auto flex max-w-[1200px] flex-col items-center gap-5 px-5 sm:px-8 md:flex-row md:justify-between">
+    <div className="relative z-10 border-y border-line py-7">
+      <div className="mx-auto flex max-w-[1200px] flex-col items-center gap-6 px-5 sm:px-8 md:flex-row md:justify-between">
         <small className="text-[13px] whitespace-nowrap text-dim">
           Use the AI you already have
         </small>
-        <ul className="flex flex-wrap justify-center gap-x-10 gap-y-3 text-[17px] font-semibold tracking-tight text-[#c9c9d1] opacity-75">
-          {providers.map((p) => (
-            <li key={p}>{p}</li>
+        <ul className="flex flex-wrap justify-center gap-x-9 gap-y-4">
+          {providerLogos.map((p) => (
+            <li
+              key={p.name}
+              className="flex items-center gap-2 text-[16px] font-semibold tracking-tight text-[#c9c9d1] opacity-70 transition-opacity hover:opacity-100"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                fillRule="evenodd"
+                aria-hidden="true"
+                className="size-5"
+                dangerouslySetInnerHTML={{ __html: p.svg }}
+              />
+              {p.name}
+            </li>
           ))}
         </ul>
       </div>
     </div>
   );
 }
-
-function Step({
-  n,
-  title,
-  text,
-  children,
-}: {
-  n: string;
-  title: string;
-  text: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="bg-background px-7 pt-7 pb-8">
-      <span className="font-mono text-xs text-brand">{n}</span>
-      <h3 className="mt-3.5 mb-2 text-[21px] font-semibold">{title}</h3>
-      <p className="text-[15px] leading-relaxed text-muted-foreground">{text}</p>
-      <div className="mt-6 flex h-[120px] flex-col justify-center gap-2 rounded-xl border border-line bg-panel p-4">
-        {children}
-      </div>
-    </div>
-  );
-}
-
-function Prog({ label, pct, done }: { label: string; pct: number; done?: boolean }) {
-  return (
-    <div className="flex items-center gap-2.5 text-[12.5px] text-muted-foreground">
-      {done ? <CheckIcon className="size-3.5 text-ok" /> : <span className="text-brand">●</span>}
-      <span className="w-32 shrink-0 sm:w-auto">{label}</span>
-      <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/7">
-        <i className="block h-full rounded-full bg-brand" style={{ width: `${pct}%` }} />
-      </div>
-    </div>
-  );
-}
-
-const thumbs = [1, 3, 4, 6, 2];
 
 export function HowItWorks() {
   return (
@@ -68,49 +43,7 @@ export function HowItWorks() {
         sub="in three steps."
         lede="No timeline to learn. Paste, press Start, and come back to finished clips."
       />
-      <div className="reveal mt-12 grid gap-px overflow-hidden rounded-2xl border border-line bg-line md:grid-cols-3">
-        <Step
-          n="01"
-          title="Paste up to 3 links"
-          text="YouTube videos or stream VODs. Kliprix checks the length and whether a chat replay exists."
-        >
-          <div className="flex h-9 items-center gap-2 rounded-lg border border-line-strong pr-1.5 pl-3 font-mono text-[12.5px] text-muted-foreground">
-            youtube.com/watch?v=…
-            <b className="ml-auto rounded-md bg-foreground px-2.5 py-1 font-sans text-xs text-black">
-              Add
-            </b>
-          </div>
-          <div className="flex h-9 items-center rounded-lg border border-line-strong px-3 font-mono text-[12.5px] text-muted-foreground opacity-50">
-            Paste a video link
-          </div>
-        </Step>
-        <Step
-          n="02"
-          title="It finds the moments"
-          text="Chat activity, audio energy, motion and the transcript are combined, then your AI picks the best clips."
-        >
-          <Prog label="Download" pct={100} done />
-          <Prog label="Highlights" pct={100} done />
-          <Prog label="Editing clip 3 of 5" pct={55} />
-        </Step>
-        <Step
-          n="03"
-          title="Download and post"
-          text="Up to 5 vertical 1080×1920 shorts per video, each with a title, description, hashtags and a LinkedIn post."
-        >
-          <div className="flex justify-center gap-2">
-            {thumbs.map((n) => (
-              <img
-                key={n}
-                src={`/media/clip-${n}.jpg`}
-                alt=""
-                loading="lazy"
-                className="aspect-[9/16] w-11 rounded-md border border-line-strong object-cover"
-              />
-            ))}
-          </div>
-        </Step>
-      </div>
+      <HowSteps />
       <AppWindow />
     </Container>
   );

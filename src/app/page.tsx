@@ -3,8 +3,8 @@ import { Hero } from "@/components/site/hero";
 import { HowItWorks, ProviderStrip } from "@/components/site/how-it-works";
 import { Features } from "@/components/site/features";
 import { Compare, Privacy } from "@/components/site/privacy";
-import { Community } from "@/components/site/community";
 import { Faq } from "@/components/site/faq";
+import { Feedback } from "@/components/site/feedback";
 import { FinalCta, Footer } from "@/components/site/final-cta";
 
 export default function Home() {
@@ -18,8 +18,8 @@ export default function Home() {
         <Features />
         <Privacy />
         <Compare />
-        <Community />
         <Faq />
+        <Feedback />
         <FinalCta />
       </main>
       <Footer />

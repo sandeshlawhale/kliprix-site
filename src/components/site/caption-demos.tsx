@@ -2,6 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 import { useEffect, useState } from "react";
+import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 
 /** Advances a word index on a timer; stays still for reduced motion. */
@@ -65,11 +66,19 @@ export function CaptionStyles() {
   return (
     <div className="mt-6 grid grid-cols-3 gap-2">
       {styles.map((s, idx) => (
-        <button
+        <motion.button
           key={s.name}
           type="button"
           onClick={() => setSel(idx)}
           aria-pressed={sel === idx}
+          variants={{
+            rest: { y: 0, rotate: 0 },
+            hover: {
+              y: -8,
+              rotate: (idx - 1) * 3,
+              transition: { delay: idx * 0.08, type: "spring", stiffness: 300, damping: 18 },
+            },
+          }}
           className="group text-center"
         >
           <div
@@ -96,7 +105,7 @@ export function CaptionStyles() {
           >
             {s.name}
           </span>
-        </button>
+        </motion.button>
       ))}
     </div>
   );
@@ -135,13 +144,17 @@ export function LanguageToggle() {
           </button>
         ))}
       </div>
-      <p className="caption-text mt-5 text-center text-[22px] leading-tight">
+      <motion.p
+        variants={{ rest: { scale: 1 }, hover: { scale: 1.1 } }}
+        transition={{ type: "spring", stiffness: 260, damping: 18 }}
+        className="caption-text mt-5 text-center text-[22px] leading-tight"
+      >
         {lines[lang].map((w, j) => (
           <span key={w} className={cn(j === i && "text-brand")}>
             {w}{" "}
           </span>
         ))}
-      </p>
+      </motion.p>
     </div>
   );
 }

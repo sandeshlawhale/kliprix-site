@@ -124,13 +124,17 @@
   mask-image: radial-gradient(ellipse at 50% 20%, #000 10%, transparent 60%);
 }
 
-/* Hero reel: phones fanned out from the center. --s scales the whole fan on small screens. */
+/*
+ * Hero reel: phones fanned out from the center. --s scales the whole fan on small screens.
+ * The reel is exactly as tall as the center phone, so the hero ends at its bottom edge and
+ * the side phones are cut at that same line (the section hides the overflow).
+ * No hover effects: the fan is a showcase, not a control.
+ */
 .reel {
   --s: 1;
-  --w: 300px;
+  --w: 320px;
   position: relative;
-  height: calc(var(--w) * 16 / 9 * var(--s) + 140px);
-  perspective: 1600px;
+  height: calc(var(--w) * var(--s) * 16 / 9);
 }
 .phone {
   position: absolute;
@@ -145,7 +149,6 @@
   box-shadow:
     0 40px 80px -20px rgb(0 0 0 / 0.8),
     0 0 0 6px rgb(255 255 255 / 0.025);
-  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 .phone video,
 .phone img {
@@ -155,39 +158,31 @@
   display: block;
 }
 .phone-0 {
-  transform: translateX(-50%) scale(1.07);
-  transform-origin: top center;
+  transform: translateX(-50%);
   z-index: 5;
 }
 .phone-1 {
-  transform: translateX(-50%) translateX(calc(-300px * var(--s))) translateY(calc(50px * var(--s)))
-    rotate(-5deg) scale(0.88);
+  transform: translateX(-50%) translateX(calc(-290px * var(--s))) translateY(calc(48px * var(--s)))
+    rotate(-5deg) scale(0.84);
   z-index: 4;
 }
 .phone-2 {
-  transform: translateX(-50%) translateX(calc(300px * var(--s))) translateY(calc(50px * var(--s)))
-    rotate(5deg) scale(0.88);
+  transform: translateX(-50%) translateX(calc(290px * var(--s))) translateY(calc(48px * var(--s)))
+    rotate(5deg) scale(0.84);
   z-index: 4;
 }
+/* The outer phones are tucked in, so their inner corners sit behind their neighbours. */
 .phone-3 {
-  transform: translateX(-50%) translateX(calc(-570px * var(--s))) translateY(calc(120px * var(--s)))
-    rotate(-9deg) scale(0.76);
+  transform: translateX(-50%) translateX(calc(-470px * var(--s))) translateY(calc(110px * var(--s)))
+    rotate(-9deg) scale(0.7);
   z-index: 3;
-  opacity: 0.85;
+  opacity: 0.8;
 }
 .phone-4 {
-  transform: translateX(-50%) translateX(calc(570px * var(--s))) translateY(calc(120px * var(--s)))
-    rotate(9deg) scale(0.76);
+  transform: translateX(-50%) translateX(calc(470px * var(--s))) translateY(calc(110px * var(--s)))
+    rotate(9deg) scale(0.7);
   z-index: 3;
-  opacity: 0.85;
-}
-.reel:hover .phone-1 {
-  transform: translateX(-50%) translateX(calc(-315px * var(--s))) translateY(calc(40px * var(--s)))
-    rotate(-6deg) scale(0.9);
-}
-.reel:hover .phone-2 {
-  transform: translateX(-50%) translateX(calc(315px * var(--s))) translateY(calc(40px * var(--s)))
-    rotate(6deg) scale(0.9);
+  opacity: 0.8;
 }
 @media (max-width: 1100px) {
   .reel {
@@ -205,7 +200,7 @@
 }
 @media (max-width: 520px) {
   .reel {
-    --s: 0.5;
+    --s: 0.52;
   }
 }
 
@@ -229,9 +224,6 @@
   .js .reveal {
     opacity: 1;
     transform: none;
-    transition: none;
-  }
-  .phone {
     transition: none;
   }
 }

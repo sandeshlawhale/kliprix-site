@@ -31,26 +31,26 @@ const faqs = [
 ];
 
 export function Faq() {
-  const half = Math.ceil(faqs.length / 2);
   return (
     <Container id="faq" className="pt-[clamp(70px,10vw,120px)] pb-10">
-      <SectionHead eyebrow="FAQ" title="Questions, answered." />
-      <div className="reveal mt-10 grid gap-x-12 md:grid-cols-2">
-        {[faqs.slice(0, half), faqs.slice(half)].map((col, c) => (
-          <Accordion key={c} type="single" collapsible defaultValue={c === 0 ? "0-0" : undefined}>
-            {col.map((f, i) => (
-              <AccordionItem key={f.q} value={`${c}-${i}`} className="border-line">
-                <AccordionTrigger className="py-5 text-base font-semibold hover:no-underline">
-                  {f.q}
-                </AccordionTrigger>
-                <AccordionContent className="text-[14.5px] leading-relaxed text-muted-foreground">
-                  {f.a}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
+      <SectionHead center eyebrow="FAQ" title="Questions, answered." />
+      <Accordion
+        type="single"
+        collapsible
+        defaultValue="0"
+        className="reveal mx-auto mt-10 max-w-[820px]"
+      >
+        {faqs.map((f, i) => (
+          <AccordionItem key={f.q} value={String(i)} className="border-line">
+            <AccordionTrigger className="py-5 text-[17px] font-semibold hover:text-brand hover:no-underline">
+              {f.q}
+            </AccordionTrigger>
+            <AccordionContent className="text-[15px] leading-relaxed text-muted-foreground">
+              {f.a}
+            </AccordionContent>
+          </AccordionItem>
         ))}
-      </div>
+      </Accordion>
     </Container>
   );
 }

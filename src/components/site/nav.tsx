@@ -2,7 +2,6 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { nav, repoUrl, site } from "@/lib/site";
 import { GitHubIcon, Logo } from "./icons";
-import { GitHubStars } from "./github-stars";
 
 export function Nav() {
   return (
@@ -31,7 +30,6 @@ export function Nav() {
           >
             <GitHubIcon className="size-[15px]" />
             Star on GitHub
-            <GitHubStars />
           </a>
           <a
             href={site.downloadZip}

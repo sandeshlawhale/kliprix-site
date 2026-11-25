@@ -14,12 +14,33 @@ export function WindowsIcon({ className }: { className?: string }) {
   );
 }
 
+/** The "K" mark: a drawn glyph (not a font letter), so it sits optically centered at any size. */
+export function LogoMark({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 32 32" aria-hidden="true" className={className}>
+      <defs>
+        <linearGradient id="kx-g" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#ffd23f" />
+          <stop offset="1" stopColor="#ff8a3d" />
+        </linearGradient>
+      </defs>
+      <rect width="32" height="32" rx="9" fill="url(#kx-g)" />
+      <path
+        d="M11 8.5v15M21.5 8.5 13.6 16l7.9 7.5"
+        fill="none"
+        stroke="#111"
+        strokeWidth="3.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 export function Logo() {
   return (
     <span className="flex items-center gap-2.5 text-lg font-bold tracking-tight">
-      <span className="grid size-[26px] place-items-center rounded-lg bg-linear-135 from-brand to-brand-2 font-title text-[15px] text-black">
-        K
-      </span>
+      <LogoMark className="size-7" />
       Kliprix
     </span>
   );

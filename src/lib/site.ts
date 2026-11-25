@@ -1,6 +1,5 @@
 import siteJson from "../../data/site.json";
 import reviewsJson from "../../data/reviews.json";
-import changelogJson from "../../data/changelog.json";
 
 export type SiteConfig = {
   /** Public URL of the deployed site, e.g. "https://kliprix.app". Used for social previews. */
@@ -25,11 +24,8 @@ export type Review = {
   url?: string;
 };
 
-export type ChangelogEntry = { id: string; date: string; text: string };
-
 export const site: SiteConfig = siteJson;
 export const reviews = reviewsJson as Review[];
-export const changelog = changelogJson as ChangelogEntry[];
 
 export const repoUrl = `https://github.com/${site.repo}`;
 export const issuesNewUrl = `${repoUrl}/issues/new`;
@@ -38,6 +34,6 @@ export const nav = [
   { href: "#how", label: "How it works" },
   { href: "#features", label: "Features" },
   { href: "#privacy", label: "Privacy" },
-  { href: "#changelog", label: "Changelog" },
   { href: "#faq", label: "FAQ" },
+  { href: "#feedback", label: "Feedback" },
 ];

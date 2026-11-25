@@ -28,19 +28,18 @@ After deploying, put the public URL in `data/site.json` → `siteUrl` (used for 
 
 | File | What it holds |
 |---|---|
-| `data/site.json` | Repo name, download link, public URL, and the optional review form endpoint |
-| `data/changelog.json` | The "Recently shipped" list (newest first) |
-| `data/reviews.json` | Reviews shown on the page. Starts empty, and the page says so |
+| `data/site.json` | Repo name, download link, public URL, and the optional feedback form endpoint |
+| `data/reviews.json` | Reviews shown in the Feedback section. Starts empty, and the page says so |
 
 Edit a file, then rebuild and redeploy. The data is read at build time.
 
-### How reviews work
+### How feedback and reviews work
 
 A static site cannot write files after it is deployed, so reviews take this path:
 
-1. A visitor fills in the form.
+1. A visitor picks what to share (a review, an idea or a bug report) and writes it.
 2. **If `reviewFormEndpoint` is empty** (the default), the form opens a pre-filled GitHub issue
-   in a new tab, and the visitor presses "Create". **If you set it** to a form service URL
+   in a new tab (labelled `review`, `enhancement` or `bug`), and the visitor presses "Create". **If you set it** to a form service URL
    (for example a free [Formspree](https://formspree.io) form: `https://formspree.io/f/<id>`),
    the review is sent there and you get it by email.
 3. You read it and copy the ones you approve into `data/reviews.json`:
@@ -59,7 +58,7 @@ A static site cannot write files after it is deployed, so reviews take this path
 ```
 
 `url` is optional (a link to where the review was posted). As soon as the list has entries, the
-page shows them as cards above the form. Only publish real reviews.
+Feedback section shows the first two as cards beside the form. Only publish real reviews.
 
 ## Media
 
@@ -74,6 +73,18 @@ from your own video or one you have permission to use. To cut a new loop from an
 ffmpeg -ss 2 -t 8 -i path/to/clip.mp4 -an -vf "scale=540:960,fps=30" -c:v libx264 -crf 27 -preset slow -pix_fmt yuv420p -movflags +faststart public/media/clip-1.mp4
 ffmpeg -ss 3 -i public/media/clip-1.mp4 -frames:v 1 -q:v 4 public/media/clip-1.jpg
 ```
+
+## Animations
+
+Built with [Motion](https://motion.dev) (the successor of Framer Motion), imported from
+`motion/react`. Every animation follows the visitor's "reduce motion" setting
+(`MotionConfig reducedMotion="user"` in `src/components/site/motion-provider.tsx`).
+
+## Logos
+
+The AI provider logos in `src/components/site/provider-logos.ts` come from
+[@lobehub/icons-static-svg](https://github.com/lobehub/lobe-icons) 1.106.0 (MIT). They are
+trademarks of their owners and are shown only to say which providers Kliprix works with.
 
 ## Fonts
 
