@@ -243,7 +243,7 @@ export function HowSteps() {
   }
 
   return (
-    <div className="mt-12 grid divide-y divide-line rounded-2xl border border-line bg-linear-to-b from-white/[0.03] to-white/[0.01] lg:grid-cols-3 lg:divide-x lg:divide-y-0">
+    <div className="mt-9 grid divide-y divide-line rounded-2xl border border-line bg-linear-to-b from-white/[0.03] to-white/[0.01] lg:grid-cols-3 lg:divide-x lg:divide-y-0">
       {steps.map((s, i) => (
         <motion.div
           key={s.n}

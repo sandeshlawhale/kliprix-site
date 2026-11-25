@@ -36,7 +36,7 @@ export function ProviderStrip() {
 
 export function HowItWorks() {
   return (
-    <Container id="how" className="pt-[clamp(80px,12vw,130px)] pb-10">
+    <Container id="how" className="pt-[clamp(56px,8vw,96px)] pb-6">
       <SectionHead
         eyebrow="How it works"
         title="From link to posted"
@@ -92,7 +92,7 @@ const meta = [
 /** A drawing of the batch page, built from real clips and real generated metadata. */
 function AppWindow() {
   return (
-    <div className="reveal mt-16 overflow-hidden rounded-[18px] border border-line-strong bg-linear-to-b from-[#121218] to-[#0b0b0f] shadow-[0_60px_120px_-40px_rgb(255_210_63/0.18),0_30px_80px_-20px_rgb(0_0_0/0.9)]">
+    <div className="reveal mt-10 overflow-hidden rounded-[18px] border border-line-strong bg-linear-to-b from-[#121218] to-[#0b0b0f] shadow-[0_60px_120px_-40px_rgb(255_210_63/0.18),0_30px_80px_-20px_rgb(0_0_0/0.9)]">
       <div className="flex h-10 items-center gap-[7px] border-b border-line px-4">
         <i className="size-[11px] rounded-full bg-[#2a2a31]" />
         <i className="size-[11px] rounded-full bg-[#2a2a31]" />

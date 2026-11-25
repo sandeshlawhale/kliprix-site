@@ -240,14 +240,14 @@ function ReviewCard({ r }: { r: Review }) {
 
 export function Feedback() {
   return (
-    <Container id="feedback" className="pt-[clamp(70px,10vw,120px)]">
+    <Container id="feedback" className="pt-[clamp(56px,8vw,96px)]">
       <div className="mx-auto max-w-[640px]">
         <SectionHead
           eyebrow="Feedback"
           title="Tell us what you think."
           lede="A review, an idea or a bug. Every message is read."
         />
-        <div className="reveal mt-10">
+        <div className="reveal mt-8">
           <FeedbackForm />
         </div>
         {reviews.length > 0 && (

@@ -83,7 +83,7 @@
   }
   html {
     scroll-behavior: smooth;
-    scroll-padding-top: 80px;
+    scroll-padding-top: 88px;
   }
   body {
     @apply bg-background font-sans text-foreground antialiased;

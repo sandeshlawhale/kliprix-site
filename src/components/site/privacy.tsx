@@ -77,7 +77,7 @@ const facts: {
 
 export function Privacy() {
   return (
-    <Container id="privacy" className="pt-[clamp(90px,14vw,150px)] pb-14 text-center">
+    <Container id="privacy" className="pt-[clamp(56px,8vw,96px)] pb-6 text-center">
       <SectionHead
         center
         eyebrow="Private by design"
@@ -89,7 +89,7 @@ export function Privacy() {
         lede="No account, no cloud and no tracking. Your API key is kept encrypted on your PC, or only in memory if you prefer."
       />
 
-      <div className="mt-14 grid gap-4 text-left sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-10 grid gap-4 text-left sm:grid-cols-2 lg:grid-cols-4">
         {facts.map((f, i) => (
           <motion.div
             key={f.title}
@@ -127,9 +127,9 @@ const rows: [string, string, string][] = [
 
 export function Compare() {
   return (
-    <Container className="pt-[clamp(70px,10vw,110px)] pb-10">
+    <Container className="pt-[clamp(56px,8vw,96px)] pb-6">
       <SectionHead eyebrow="Why local" title="Kliprix vs. cloud clippers" />
-      <div className="reveal mt-11 overflow-x-auto">
+      <div className="reveal mt-8 overflow-x-auto">
         <table className="w-full border-collapse text-[14px] sm:text-[15px]">
           <thead>
             <tr className="border-b border-line text-left text-[13px] font-semibold">

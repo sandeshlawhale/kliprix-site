@@ -32,13 +32,13 @@ const faqs = [
 
 export function Faq() {
   return (
-    <Container id="faq" className="pt-[clamp(70px,10vw,120px)] pb-10">
+    <Container id="faq" className="pt-[clamp(56px,8vw,96px)] pb-6">
       <SectionHead center eyebrow="FAQ" title="Questions, answered." />
       <Accordion
         type="single"
         collapsible
         defaultValue="0"
-        className="reveal mx-auto mt-10 max-w-[820px]"
+        className="reveal mx-auto mt-8 max-w-[820px]"
       >
         {faqs.map((f, i) => (
           <AccordionItem key={f.q} value={String(i)} className="border-line">

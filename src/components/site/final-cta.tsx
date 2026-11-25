@@ -10,7 +10,7 @@ export function FinalCta() {
   return (
     <section
       id="install"
-      className="relative mt-[clamp(70px,10vw,120px)] overflow-hidden border-t border-line py-[clamp(70px,10vw,110px)] text-center"
+      className="relative mt-[clamp(56px,8vw,96px)] overflow-hidden border-t border-line py-[clamp(70px,10vw,110px)] text-center"
     >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(700px_320px_at_50%_100%,rgb(255_210_63/0.18),transparent_70%)]" />
       <div className="relative mx-auto max-w-[1200px] px-5 sm:px-8">

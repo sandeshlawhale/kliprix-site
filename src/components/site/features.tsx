@@ -345,13 +345,13 @@ function Editor() {
 
 export function Features() {
   return (
-    <Container id="features" className="pt-[clamp(80px,12vw,130px)] pb-10">
+    <Container id="features" className="pt-[clamp(56px,8vw,96px)] pb-6">
       <SectionHead
         eyebrow="Features"
         title="Everything a clip needs."
         sub="Nothing you have to fiddle with."
       />
-      <div className="mt-14 grid gap-4 md:grid-cols-2 lg:grid-cols-6">
+      <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-6">
         <Card className="md:col-span-2 lg:col-span-4">
           <CardTitle>Finds highlights the way viewers do</CardTitle>
           <CardText>
