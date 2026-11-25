@@ -46,17 +46,27 @@ export function HeroReel() {
     const videos = Array.from(root.querySelectorAll("video"));
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduce) return;
-    const io = new IntersectionObserver(
-      ([e]) => {
-        for (const v of videos) {
-          if (e.isIntersecting) v.play().catch(() => {});
-          else v.pause();
-        }
-      },
-      { threshold: 0.05 },
-    );
-    io.observe(root);
-    return () => io.disconnect();
+    let io: IntersectionObserver | undefined;
+    // The posters show at once; the video files start downloading only after the page has
+    // loaded, so they never hold up the first paint.
+    const start = () => {
+      io = new IntersectionObserver(
+        ([e]) => {
+          for (const v of videos) {
+            if (e.isIntersecting) v.play().catch(() => {});
+            else v.pause();
+          }
+        },
+        { threshold: 0.05 },
+      );
+      io.observe(root);
+    };
+    if (document.readyState === "complete") start();
+    else window.addEventListener("load", start, { once: true });
+    return () => {
+      window.removeEventListener("load", start);
+      io?.disconnect();
+    };
   }, []);
 
   return (
@@ -70,7 +80,7 @@ export function HeroReel() {
               muted
               loop
               playsInline
-              preload="metadata"
+              preload="none"
               aria-hidden="true"
             />
           ) : (

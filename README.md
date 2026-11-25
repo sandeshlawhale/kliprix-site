@@ -22,7 +22,36 @@ Checks: `npm run typecheck`, `npm run lint`, `npm run build` (writes the static 
 - **GitHub Pages:** upload `out/` (add `basePath` in `next.config.ts` if it is served from
   `/<repo>/`).
 
-After deploying, put the public URL in `data/site.json` → `siteUrl` (used for link previews).
+On Vercel the production address is filled in automatically (`VERCEL_PROJECT_PRODUCTION_URL`).
+When you get your own domain, put it in `data/site.json` → `siteUrl`; it wins over Vercel's.
+`vercel.json` sets browser caching for `/media` (7 days) and the icons (1 day).
+
+## Link previews (WhatsApp, LinkedIn, X, ...)
+
+`src/app/layout.tsx` sets the Open Graph and Twitter tags that chat apps and social sites read
+when a link is shared: title, description and `public/og.jpg` (1200x630, about 90 KB; WhatsApp
+skips images much over 300 KB). It also adds the canonical address, icons, a web manifest,
+`robots.txt`, `sitemap.xml` and structured data (schema.org SoftwareApplication, free).
+
+The preview image and the icons are made by a script from the logo and the clips in
+`public/media`. Run it again after replacing the clips:
+
+```
+python scripts/make-share-image.py      # needs Pillow
+```
+
+Sites cache previews. After a change, refresh them here:
+[LinkedIn Post Inspector](https://www.linkedin.com/post-inspector/),
+[Facebook Sharing Debugger](https://developers.facebook.com/tools/debug/) (also used by
+WhatsApp and Instagram). X and WhatsApp pick up changes on their own, usually within a day.
+
+## Speed
+
+- Only Inter is preloaded (one 48 KB woff2). Montserrat, used by the caption demos further
+  down, is a subset woff2 that loads when needed.
+- The hero videos have `preload="none"`: the posters show at once and the video files start
+  downloading only after the page has loaded, so they never slow the first paint.
+- Pages and scripts are plain static files, served from Vercel's CDN.
 
 ## Content: the `data/` folder
 
@@ -89,6 +118,6 @@ trademarks of their owners and are shown only to say which providers Kliprix wor
 
 ## Fonts
 
-Inter (Google Fonts, downloaded at build time), plus Anton and Montserrat ExtraBold from
-`src/fonts/` (SIL Open Font License, see the `OFL-*.txt` files), the same fonts the Kliprix
-renderer uses for titles and captions.
+Inter and Montserrat ExtraBold (Google Fonts, downloaded and self-hosted at build time).
+`scripts/assets/Montserrat-ExtraBold.ttf` is only used by the preview-image script
+(SIL Open Font License, see `scripts/assets/OFL-Montserrat.txt`).
