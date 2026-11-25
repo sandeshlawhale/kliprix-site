@@ -16,14 +16,16 @@ export function CopyButton({
   const [done, setDone] = useState(false);
 
   async function copy() {
+    let ok = false;
     try {
       await navigator.clipboard.writeText(text);
-      setDone(true);
-      setTimeout(() => setDone(false), 1500);
+      ok = true;
     } catch {
-      // Clipboard can be blocked (insecure origin, permissions); the text stays selectable.
-      setDone(false);
+      ok = copyWithSelection(text);
     }
+    if (!ok) return; // the text stays visible and selectable
+    setDone(true);
+    setTimeout(() => setDone(false), 1500);
   }
 
   return (
@@ -40,4 +42,23 @@ export function CopyButton({
       {done ? "Copied" : label}
     </button>
   );
+}
+
+/** Fallback for browsers or frames where the Clipboard API is blocked. */
+function copyWithSelection(text: string) {
+  const area = document.createElement("textarea");
+  area.value = text;
+  area.setAttribute("readonly", "");
+  area.style.position = "fixed";
+  area.style.opacity = "0";
+  document.body.appendChild(area);
+  area.select();
+  let ok = false;
+  try {
+    ok = document.execCommand("copy");
+  } catch {
+    ok = false;
+  }
+  area.remove();
+  return ok;
 }
