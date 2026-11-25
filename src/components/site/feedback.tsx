@@ -201,13 +201,10 @@ function FeedbackForm() {
         name="website"
       />
 
-      <div className="flex flex-wrap items-center gap-4">
+      <div>
         <Button type="submit" disabled={sending} className="h-10 rounded-[10px] px-5 font-semibold">
           {sending ? "Sending…" : "Send"}
         </Button>
-        <span className="text-xs text-dim">
-          Sent privately to us. Nothing is posted publicly.
-        </span>
       </div>
     </form>
   );
