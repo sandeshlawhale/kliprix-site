@@ -1,0 +1,244 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+  --font-heading: var(--font-sans);
+  --font-mono: ui-monospace, SFMono-Regular, "Cascadia Mono", Consolas, monospace;
+  --font-title: var(--font-anton), Impact, sans-serif;
+  --font-caption: var(--font-montserrat), "Arial Black", sans-serif;
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --color-brand: var(--brand);
+  --color-brand-2: var(--brand-2);
+  --color-violet: var(--violet);
+  --color-ok: var(--ok);
+  --color-dim: var(--dim);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-panel: var(--panel);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* One dark theme. The accent is the yellow Kliprix uses for the spoken caption word. */
+:root {
+  --background: #08080b;
+  --foreground: #f4f4f6;
+  --card: #111117;
+  --card-foreground: #f4f4f6;
+  --popover: #121218;
+  --popover-foreground: #f4f4f6;
+  --primary: #ffd23f;
+  --primary-foreground: #111111;
+  --secondary: rgb(255 255 255 / 0.05);
+  --secondary-foreground: #f4f4f6;
+  --muted: rgb(255 255 255 / 0.05);
+  --muted-foreground: #9a9aa6;
+  --accent: rgb(255 255 255 / 0.07);
+  --accent-foreground: #f4f4f6;
+  --destructive: #ff5c5c;
+  --border: rgb(255 255 255 / 0.1);
+  --input: rgb(255 255 255 / 0.14);
+  --ring: rgb(255 210 63 / 0.6);
+  --radius: 0.75rem;
+  --brand: #ffd23f;
+  --brand-2: #ff8a3d;
+  --violet: #8b7bff;
+  --ok: #5ad69a;
+  --dim: #6b6b76;
+  --line: rgb(255 255 255 / 0.08);
+  --line-strong: rgb(255 255 255 / 0.14);
+  --panel: #0d0d12;
+  color-scheme: dark;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 80px;
+  }
+  body {
+    @apply bg-background font-sans text-foreground antialiased;
+    overflow-x: hidden;
+  }
+  h1,
+  h2,
+  h3 {
+    letter-spacing: -0.035em;
+  }
+}
+
+@utility text-gradient {
+  background: linear-gradient(90deg, var(--brand), var(--brand-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility glow-brand {
+  box-shadow:
+    0 0 0 1px rgb(255 210 63 / 0.3),
+    0 10px 40px -10px rgb(255 210 63 / 0.55);
+}
+
+/* Hero backdrop: soft color glows and a faded grid. */
+.hero-glow {
+  background:
+    radial-gradient(600px 300px at 50% 30%, rgb(255 210 63 / 0.16), transparent 70%),
+    radial-gradient(500px 300px at 22% 62%, rgb(139 123 255 / 0.14), transparent 70%),
+    radial-gradient(500px 300px at 80% 62%, rgb(255 138 61 / 0.12), transparent 70%);
+}
+.hero-grid {
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse at 50% 20%, #000 10%, transparent 60%);
+}
+
+/* Hero reel: phones fanned out from the center. --s scales the whole fan on small screens. */
+.reel {
+  --s: 1;
+  --w: 300px;
+  position: relative;
+  height: calc(var(--w) * 16 / 9 * var(--s) + 140px);
+  perspective: 1600px;
+}
+.phone {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: calc(var(--w) * var(--s));
+  aspect-ratio: 9 / 16;
+  border-radius: calc(26px * var(--s));
+  overflow: hidden;
+  background: #000;
+  border: 1px solid var(--line-strong);
+  box-shadow:
+    0 40px 80px -20px rgb(0 0 0 / 0.8),
+    0 0 0 6px rgb(255 255 255 / 0.025);
+  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.phone video,
+.phone img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.phone-0 {
+  transform: translateX(-50%) scale(1.07);
+  transform-origin: top center;
+  z-index: 5;
+}
+.phone-1 {
+  transform: translateX(-50%) translateX(calc(-300px * var(--s))) translateY(calc(50px * var(--s)))
+    rotate(-5deg) scale(0.88);
+  z-index: 4;
+}
+.phone-2 {
+  transform: translateX(-50%) translateX(calc(300px * var(--s))) translateY(calc(50px * var(--s)))
+    rotate(5deg) scale(0.88);
+  z-index: 4;
+}
+.phone-3 {
+  transform: translateX(-50%) translateX(calc(-570px * var(--s))) translateY(calc(120px * var(--s)))
+    rotate(-9deg) scale(0.76);
+  z-index: 3;
+  opacity: 0.85;
+}
+.phone-4 {
+  transform: translateX(-50%) translateX(calc(570px * var(--s))) translateY(calc(120px * var(--s)))
+    rotate(9deg) scale(0.76);
+  z-index: 3;
+  opacity: 0.85;
+}
+.reel:hover .phone-1 {
+  transform: translateX(-50%) translateX(calc(-315px * var(--s))) translateY(calc(40px * var(--s)))
+    rotate(-6deg) scale(0.9);
+}
+.reel:hover .phone-2 {
+  transform: translateX(-50%) translateX(calc(315px * var(--s))) translateY(calc(40px * var(--s)))
+    rotate(6deg) scale(0.9);
+}
+@media (max-width: 1100px) {
+  .reel {
+    --s: 0.8;
+  }
+}
+@media (max-width: 860px) {
+  .reel {
+    --s: 0.62;
+  }
+  .phone-3,
+  .phone-4 {
+    display: none;
+  }
+}
+@media (max-width: 520px) {
+  .reel {
+    --s: 0.5;
+  }
+}
+
+/* Scroll reveal: content is visible without JS; with JS it fades up once. */
+.js .reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 0.7s ease,
+    transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.js .reveal.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .js .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .phone {
+    transition: none;
+  }
+}
+
+.caption-text {
+  font-family: var(--font-caption);
+  text-shadow:
+    0 1px 0 #000,
+    0 0 4px #000;
+}
