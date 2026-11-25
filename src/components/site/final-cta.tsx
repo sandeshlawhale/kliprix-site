@@ -74,7 +74,7 @@ export function Footer() {
       <div className="mx-auto flex max-w-[1200px] flex-col gap-5 px-5 sm:flex-row sm:items-center sm:justify-between sm:px-8">
         <div className="flex items-center gap-4">
           <Logo />
-          <span>© 2026 · MIT License</span>
+          <span>© 2026 Kliprix. All rights reserved.</span>
         </div>
         <nav className="flex gap-6" aria-label="Footer">
           <a href={repoUrl} target="_blank" rel="noreferrer" className="hover:text-foreground">

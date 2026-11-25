@@ -17,22 +17,22 @@ const chips = [
   {
     text: "Picked from a chat spike",
     dot: "bg-brand",
-    pos: "left-[calc(50%-400px*var(--s))] top-[calc(40px*var(--s))]",
+    pos: "left-[calc(50%-470px*var(--s))] top-[calc(205px*var(--s))]",
   },
   {
     text: "Face-tracked crop",
     dot: "bg-violet",
-    pos: "left-[calc(50%+200px*var(--s))] top-[calc(16px*var(--s))]",
+    pos: "left-[calc(50%+170px*var(--s))] top-[calc(120px*var(--s))]",
   },
   {
     text: "Hinglish captions",
     dot: "bg-brand-2",
-    pos: "left-[calc(50%+250px*var(--s))] top-[calc(250px*var(--s))]",
+    pos: "left-[calc(50%+285px*var(--s))] top-[calc(300px*var(--s))]",
   },
   {
     text: "Title + hashtags written",
     dot: "bg-ok",
-    pos: "left-[calc(50%-470px*var(--s))] top-[calc(290px*var(--s))]",
+    pos: "left-[calc(50%-330px*var(--s))] top-[calc(365px*var(--s))]",
   },
 ];
 

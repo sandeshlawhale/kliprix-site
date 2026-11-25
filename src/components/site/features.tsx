@@ -14,7 +14,8 @@ const spring = { type: "spring", stiffness: 260, damping: 22 } as const;
 /**
  * A bento card. Hovering it sets the "hover" variant, which every motion child inside picks
  * up, and shares the hover state through HoverContext for the demos that run on a timer.
- * Leaving the card returns everything to rest. The card itself only lights its border.
+ * Leaving the card returns everything to rest. At rest the card is grayscale; on hover its
+ * colors fade in slowly and the border lights up.
  */
 function Card({ className, children }: { className?: string; children: React.ReactNode }) {
   const [on, setOn] = useState(false);
@@ -25,7 +26,7 @@ function Card({ className, children }: { className?: string; children: React.Rea
       onHoverStart={() => setOn(true)}
       onHoverEnd={() => setOn(false)}
       className={cn(
-        "reveal relative min-w-0 overflow-hidden rounded-[20px] border border-line bg-linear-to-b from-white/[0.03] to-white/[0.01] p-6 transition-colors duration-300 hover:border-brand/70 sm:p-7",
+        "reveal relative min-w-0 overflow-hidden rounded-[20px] border border-line bg-linear-to-b from-white/[0.03] to-white/[0.01] p-6 grayscale transition-[filter,border-color] duration-700 ease-out hover:border-brand/70 hover:grayscale-0 sm:p-7",
         className,
       )}
     >
