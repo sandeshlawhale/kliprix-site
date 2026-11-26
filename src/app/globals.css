@@ -233,3 +233,18 @@
     0 1px 0 #000,
     0 0 4px #000;
 }
+
+/* The app screenshots carousel: a thin bar under the active tab fills until the next one. */
+@keyframes app-screens-timer {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+.app-screens-timer {
+  animation-name: app-screens-timer;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+}
