@@ -62,6 +62,8 @@ function FeedbackForm() {
       name: name.trim(),
       rating: k.id === "review" ? rating : undefined,
       text: text.trim(),
+      // Formspree uses this as the email subject.
+      _subject: `Kliprix ${{ review: "review", idea: "idea", bug: "bug report" }[k.id]} from ${name.trim()}`,
     };
 
     if (!site.reviewFormEndpoint) {
