@@ -146,7 +146,7 @@ def share_image():
 
     y = 190
     d.text((72, y), "One long video in.", font=head, fill=TEXT)
-    gradient_text(canvas, (72, y + 74), "Five scroll-stopping", head, BRAND, BRAND_2)
+    gradient_text(canvas, (72, y + 74), "Scroll-stopping", head, BRAND, BRAND_2)
     d.text((72, y + 148), "shorts out.", font=head, fill=TEXT)
 
     d.text((72, 452), "Captions, titles and hashtags,", font=small, fill=MUTED)

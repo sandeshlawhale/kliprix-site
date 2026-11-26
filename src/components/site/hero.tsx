@@ -51,7 +51,7 @@ export function Hero() {
         >
           One long video in.
           <br />
-          <span className="text-gradient">Five scroll-stopping shorts</span> out.
+          <span className="text-gradient">Scroll-stopping shorts</span> out.
         </motion.h1>
 
         <motion.p
@@ -71,7 +71,7 @@ export function Hero() {
             )}
           >
             <DownloadIcon className="size-[18px]" />
-            Download for Free
+            Download Preview
           </a>
         </motion.div>
       </motion.div>

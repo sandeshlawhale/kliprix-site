@@ -24,7 +24,7 @@ const shareImage = {
   url: "/og.jpg",
   width: 1200,
   height: 630,
-  alt: "Kliprix: one long video in, five scroll-stopping shorts out",
+  alt: "Kliprix: one long video in, scroll-stopping shorts out",
   type: "image/jpeg",
 };
 

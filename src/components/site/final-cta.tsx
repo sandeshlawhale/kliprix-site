@@ -1,10 +1,8 @@
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { repoUrl, site } from "@/lib/site";
-import { CopyButton } from "./copy-button";
+import { InstallCommand } from "./install-command";
 import { GitHubIcon, Logo } from "./icons";
-
-const installCmd = `git clone ${repoUrl}.git && cd Kliprix && scripts\\start.bat`;
 
 export function FinalCta() {
   return (
@@ -19,12 +17,12 @@ export function FinalCta() {
           <br />
           are <span className="text-brand">one link away.</span>
         </h2>
-        <div className="reveal mt-8 flex flex-wrap justify-center gap-3">
+        <div className="reveal mt-8 flex justify-center gap-2.5 sm:gap-3">
           <a
             href={site.downloadZip}
             className={cn(
               buttonVariants({ size: "lg" }),
-              "h-12 rounded-xl px-5 text-[15px] font-semibold glow-brand",
+              "h-11 rounded-xl px-4 text-[14px] font-semibold glow-brand sm:h-12 sm:px-5 sm:text-[15px]",
             )}
           >
             Download Kliprix
@@ -35,7 +33,7 @@ export function FinalCta() {
             rel="noreferrer"
             className={cn(
               buttonVariants({ variant: "outline", size: "lg" }),
-              "h-12 gap-2 rounded-xl border-line-strong bg-white/[0.04] px-5 text-[15px] font-semibold",
+              "h-11 gap-2 rounded-xl border-line-strong bg-white/[0.04] px-4 text-[14px] font-semibold sm:h-12 sm:px-5 sm:text-[15px]",
             )}
           >
             <GitHubIcon className="size-4" />
@@ -43,13 +41,7 @@ export function FinalCta() {
           </a>
         </div>
         <div className="reveal mx-auto mt-8 flex w-fit max-w-full flex-col items-center gap-3">
-          <div className="flex w-full items-center gap-3 rounded-xl border border-line-strong bg-white/[0.03] py-2.5 pr-2.5 pl-4 text-left">
-            <span className="hidden shrink-0 text-xs text-dim sm:inline">Windows</span>
-            <code className="min-w-0 flex-1 font-mono text-[12.5px] break-all text-[#d8d8de] sm:text-[13px] md:break-normal md:whitespace-nowrap">
-              {installCmd}
-            </code>
-            <CopyButton text={installCmd} className="px-2 py-1 text-xs" />
-          </div>
+          <InstallCommand />
           <p className="text-center text-xs text-dim">
             Needs Python 3.11 or 3.12, Node.js 22+ and FFmpeg. The first start installs everything
             else.{" "}
