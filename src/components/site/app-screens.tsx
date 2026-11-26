@@ -33,8 +33,9 @@ const screens = [
 /** How far (px) a finger must move sideways to change the screenshot. */
 const SWIPE_PX = 40;
 
-/** The app window: real screenshots, switched with the arrows, the arrow keys or a sideways
- * swipe on phones (wraps around at both ends). Nothing moves on its own. */
+/** The app window: real screenshots, switched with the arrows (shown on hover), the arrow
+ * keys, the dashes below or a sideways swipe on phones (wraps around at both ends). Nothing
+ * moves on its own. */
 export function AppScreens() {
   const [index, setIndex] = useState(0);
   const start = useRef<{ x: number; y: number } | null>(null);
@@ -44,7 +45,7 @@ export function AppScreens() {
 
   return (
     <div
-      className="reveal mt-10 overflow-hidden rounded-[18px] border border-line-strong bg-linear-to-b from-[#121218] to-[#0b0b0f] shadow-[0_60px_120px_-40px_rgb(255_210_63/0.18),0_30px_80px_-20px_rgb(0_0_0/0.9)]"
+      className="reveal mt-10"
       onKeyDown={(event) => {
         if (event.key === "ArrowRight") step(1);
         if (event.key === "ArrowLeft") step(-1);
@@ -53,54 +54,79 @@ export function AppScreens() {
       aria-roledescription="carousel"
       aria-label="Kliprix app screenshots"
     >
-      <div className="flex h-10 items-center gap-[7px] border-b border-line px-4">
-        <i className="size-[11px] rounded-full bg-[#2a2a31]" />
-        <i className="size-[11px] rounded-full bg-[#2a2a31]" />
-        <i className="size-[11px] rounded-full bg-[#2a2a31]" />
-        <span className="ml-3.5 truncate font-mono text-xs text-dim">
-          127.0.0.1:3000 · Kliprix · {screens[index]!.label}
-        </span>
+      <div className="overflow-hidden rounded-[18px] border border-line-strong bg-linear-to-b from-[#121218] to-[#0b0b0f] shadow-[0_60px_120px_-40px_rgb(255_210_63/0.18),0_30px_80px_-20px_rgb(0_0_0/0.9)]">
+        <div className="flex h-10 items-center gap-[7px] border-b border-line px-4">
+          <i className="size-[11px] rounded-full bg-[#2a2a31]" />
+          <i className="size-[11px] rounded-full bg-[#2a2a31]" />
+          <i className="size-[11px] rounded-full bg-[#2a2a31]" />
+          <span className="ml-3.5 truncate font-mono text-xs text-dim">
+            127.0.0.1:3000 · Kliprix · {screens[index]!.label}
+          </span>
+        </div>
+
+        <div
+          // pan-y: the page still scrolls up and down; sideways moves are ours.
+          className="group relative aspect-[16/10] touch-pan-y bg-[#0a0a0a] select-none"
+          onTouchStart={(event) => {
+            const touch = event.touches[0];
+            start.current = touch ? { x: touch.clientX, y: touch.clientY } : null;
+          }}
+          onTouchEnd={(event) => {
+            const from = start.current;
+            const touch = event.changedTouches[0];
+            start.current = null;
+            if (!from || !touch) return;
+            const dx = touch.clientX - from.x;
+            const dy = touch.clientY - from.y;
+            if (Math.abs(dx) < SWIPE_PX || Math.abs(dx) < Math.abs(dy)) return;
+            step(dx < 0 ? 1 : -1);
+          }}
+        >
+          {screens.map((screen, i) => (
+            <img
+              key={screen.src}
+              src={screen.src}
+              alt={screen.alt}
+              width={2400}
+              height={1500}
+              draggable={false}
+              loading={i === 0 ? "eager" : "lazy"}
+              aria-hidden={i !== index}
+              className={cn(
+                "absolute inset-0 size-full object-cover object-top transition-opacity duration-500 ease-out",
+                i === index ? "opacity-100" : "opacity-0",
+              )}
+            />
+          ))}
+          <span className="sr-only" aria-live="polite">
+            {`Screenshot ${index + 1} of ${count}: ${screens[index]!.label}`}
+          </span>
+          <ArrowButton side="left" onClick={() => step(-1)} />
+          <ArrowButton side="right" onClick={() => step(1)} />
+        </div>
       </div>
 
-      <div
-        // pan-y: the page still scrolls up and down; sideways moves are ours.
-        className="relative aspect-[16/10] touch-pan-y bg-[#0a0a0a] select-none"
-        onTouchStart={(event) => {
-          const touch = event.touches[0];
-          start.current = touch ? { x: touch.clientX, y: touch.clientY } : null;
-        }}
-        onTouchEnd={(event) => {
-          const from = start.current;
-          const touch = event.changedTouches[0];
-          start.current = null;
-          if (!from || !touch) return;
-          const dx = touch.clientX - from.x;
-          const dy = touch.clientY - from.y;
-          if (Math.abs(dx) < SWIPE_PX || Math.abs(dx) < Math.abs(dy)) return;
-          step(dx < 0 ? 1 : -1);
-        }}
-      >
+      {/* One dash per screenshot: where you are and how many there are; click to jump. */}
+      <div className="mt-5 flex items-center justify-center gap-1">
         {screens.map((screen, i) => (
-          <img
+          <button
             key={screen.src}
-            src={screen.src}
-            alt={screen.alt}
-            width={2400}
-            height={1500}
-            draggable={false}
-            loading={i === 0 ? "eager" : "lazy"}
-            aria-hidden={i !== index}
-            className={cn(
-              "absolute inset-0 size-full object-cover object-top transition-opacity duration-500 ease-out",
-              i === index ? "opacity-100" : "opacity-0",
-            )}
-          />
+            type="button"
+            onClick={() => setIndex(i)}
+            aria-label={`Show screenshot ${i + 1}: ${screen.label}`}
+            aria-current={i === index}
+            // The button is taller than the dash so it is easy to hit.
+            className="group/dash grid h-6 place-items-center px-1 focus-visible:outline-none"
+          >
+            <span
+              className={cn(
+                "block h-[3px] rounded-full transition-all duration-300",
+                i === index ? "w-7 bg-brand" : "w-4 bg-white/20 group-hover/dash:bg-white/40",
+                "group-focus-visible/dash:ring-2 group-focus-visible/dash:ring-brand group-focus-visible/dash:ring-offset-2 group-focus-visible/dash:ring-offset-background",
+              )}
+            />
+          </button>
         ))}
-        <span className="sr-only" aria-live="polite">
-          {`Screenshot ${index + 1} of ${count}: ${screens[index]!.label}`}
-        </span>
-        <ArrowButton side="left" onClick={() => step(-1)} />
-        <ArrowButton side="right" onClick={() => step(1)} />
       </div>
     </div>
   );
@@ -114,7 +140,9 @@ function ArrowButton({ side, onClick }: { side: "left" | "right"; onClick: () =>
       onClick={onClick}
       aria-label={side === "left" ? "Previous screenshot" : "Next screenshot"}
       className={cn(
-        "absolute top-1/2 grid size-8 -translate-y-1/2 sm:size-10 place-items-center rounded-full border border-line-strong bg-black/60 text-foreground backdrop-blur-sm transition-colors hover:bg-black/80 focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none",
+        // Hidden until the pointer is over the screenshot (phones swipe instead); keyboard
+        // focus shows it too.
+        "absolute top-1/2 grid size-8 -translate-y-1/2 place-items-center rounded-full border border-line-strong bg-black/60 text-foreground opacity-0 backdrop-blur-sm transition-[opacity,background-color] duration-200 group-hover:opacity-100 hover:bg-black/80 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none sm:size-10",
         side === "left" ? "left-2 sm:left-3" : "right-2 sm:right-3",
       )}
     >
