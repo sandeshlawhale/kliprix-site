@@ -15,12 +15,16 @@ const commands = {
 } as const;
 type Os = keyof typeof commands;
 
-/** The one install command, with a dropdown to switch the operating system; Copy copies the shown one. */
+/**
+ * The one install command, with a dropdown to switch the operating system; Copy copies the
+ * shown one. Below 768 px the dropdown and Copy share the top row and the command gets the
+ * full width underneath.
+ */
 export function InstallCommand() {
   const [os, setOs] = useState<Os>("windows");
   const cmd = commands[os].cmd;
   return (
-    <div className="flex w-full items-center gap-2 rounded-xl border border-line-strong bg-white/[0.03] py-2 pr-2.5 pl-2 text-left sm:gap-3">
+    <div className="flex w-full flex-wrap items-center gap-2 rounded-xl border border-line-strong bg-white/[0.03] p-2 text-left md:flex-nowrap md:gap-3 md:pr-2.5">
       <Select value={os} onValueChange={(v) => setOs(v as Os)}>
         <SelectTrigger
           size="sm"
@@ -37,10 +41,10 @@ export function InstallCommand() {
           ))}
         </SelectContent>
       </Select>
-      <code className="min-w-0 flex-1 font-mono text-[12.5px] break-all text-[#d8d8de] sm:text-[13px] md:break-normal md:whitespace-nowrap">
+      <code className="order-last w-full rounded-lg bg-black/30 px-3 py-2.5 font-mono text-[12.5px] leading-relaxed break-all text-[#d8d8de] md:order-none md:w-auto md:min-w-0 md:flex-1 md:bg-transparent md:px-0 md:py-0 md:text-[13px] md:break-normal md:whitespace-nowrap">
         {cmd}
       </code>
-      <CopyButton text={cmd} className="shrink-0 px-2 py-1 text-xs" />
+      <CopyButton text={cmd} className="ml-auto shrink-0 px-2 py-1 text-xs md:ml-0" />
     </div>
   );
 }
