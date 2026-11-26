@@ -2,7 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useRef, useState } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -30,36 +30,24 @@ const screens = [
   },
 ];
 
-const AUTOPLAY_MS = 5000;
+/** How far (px) a finger must move sideways to change the screenshot. */
+const SWIPE_PX = 40;
 
-/** The app window: real screenshots that move on by themselves (looping) and can be switched
- * with the arrows, the tabs or the arrow keys. Autoplay stops while hovered or focused. */
+/** The app window: real screenshots, switched with the arrows, the arrow keys or a sideways
+ * swipe on phones (wraps around at both ends). Nothing moves on its own. */
 export function AppScreens() {
   const [index, setIndex] = useState(0);
-  const [paused, setPaused] = useState(false);
+  const start = useRef<{ x: number; y: number } | null>(null);
   const count = screens.length;
-  const go = useCallback((next: number) => setIndex((next + count) % count), [count]);
-
-  useEffect(() => {
-    if (paused) return;
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce) return;
-    const id = window.setTimeout(() => go(index + 1), AUTOPLAY_MS);
-    return () => window.clearTimeout(id);
-  }, [index, paused, go]);
+  // Steps from the latest index, so quick swipes or key repeats never get lost.
+  const step = (delta: number) => setIndex((current) => (current + delta + count) % count);
 
   return (
     <div
       className="reveal mt-10 overflow-hidden rounded-[18px] border border-line-strong bg-linear-to-b from-[#121218] to-[#0b0b0f] shadow-[0_60px_120px_-40px_rgb(255_210_63/0.18),0_30px_80px_-20px_rgb(0_0_0/0.9)]"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      onFocus={() => setPaused(true)}
-      onBlur={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget)) setPaused(false);
-      }}
       onKeyDown={(event) => {
-        if (event.key === "ArrowRight") go(index + 1);
-        if (event.key === "ArrowLeft") go(index - 1);
+        if (event.key === "ArrowRight") step(1);
+        if (event.key === "ArrowLeft") step(-1);
       }}
       role="region"
       aria-roledescription="carousel"
@@ -74,7 +62,24 @@ export function AppScreens() {
         </span>
       </div>
 
-      <div className="relative aspect-[16/10] bg-[#0a0a0a]">
+      <div
+        // pan-y: the page still scrolls up and down; sideways moves are ours.
+        className="relative aspect-[16/10] touch-pan-y bg-[#0a0a0a] select-none"
+        onTouchStart={(event) => {
+          const touch = event.touches[0];
+          start.current = touch ? { x: touch.clientX, y: touch.clientY } : null;
+        }}
+        onTouchEnd={(event) => {
+          const from = start.current;
+          const touch = event.changedTouches[0];
+          start.current = null;
+          if (!from || !touch) return;
+          const dx = touch.clientX - from.x;
+          const dy = touch.clientY - from.y;
+          if (Math.abs(dx) < SWIPE_PX || Math.abs(dx) < Math.abs(dy)) return;
+          step(dx < 0 ? 1 : -1);
+        }}
+      >
         {screens.map((screen, i) => (
           <img
             key={screen.src}
@@ -82,6 +87,7 @@ export function AppScreens() {
             alt={screen.alt}
             width={2400}
             height={1500}
+            draggable={false}
             loading={i === 0 ? "eager" : "lazy"}
             aria-hidden={i !== index}
             className={cn(
@@ -93,37 +99,8 @@ export function AppScreens() {
         <span className="sr-only" aria-live="polite">
           {`Screenshot ${index + 1} of ${count}: ${screens[index]!.label}`}
         </span>
-        <ArrowButton side="left" onClick={() => go(index - 1)} />
-        <ArrowButton side="right" onClick={() => go(index + 1)} />
-      </div>
-
-      <div className="flex flex-wrap items-center justify-center gap-2 border-t border-line px-4 py-3">
-        {screens.map((screen, i) => (
-          <button
-            key={screen.src}
-            type="button"
-            onClick={() => go(i)}
-            aria-current={i === index}
-            aria-label={`Show ${screen.label}`}
-            className={cn(
-              "relative overflow-hidden rounded-full border px-3 py-1 text-[12px] transition-colors focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none",
-              i === index
-                ? "border-brand/50 bg-brand/10 text-brand"
-                : "border-line-strong text-dim hover:text-foreground",
-            )}
-          >
-            {screen.label}
-            {i === index && !paused && (
-              // Shows how long until the next screenshot.
-              <span
-                key={index}
-                aria-hidden
-                className="app-screens-timer absolute inset-x-0 bottom-0 h-px origin-left bg-brand"
-                style={{ animationDuration: `${AUTOPLAY_MS}ms` }}
-              />
-            )}
-          </button>
-        ))}
+        <ArrowButton side="left" onClick={() => step(-1)} />
+        <ArrowButton side="right" onClick={() => step(1)} />
       </div>
     </div>
   );
