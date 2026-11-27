@@ -44,7 +44,7 @@ export function InstallCommand() {
       <code className="order-last w-full rounded-lg bg-black/30 px-3 py-2.5 font-mono text-[12.5px] leading-relaxed break-all text-[#d8d8de] md:order-none md:w-auto md:min-w-0 md:flex-1 md:bg-transparent md:px-0 md:py-0 md:text-[13px] md:break-normal md:whitespace-nowrap">
         {cmd}
       </code>
-      <CopyButton text={cmd} className="ml-auto shrink-0 px-2 py-1 text-xs md:ml-0" />
+      <CopyButton text={cmd} trackEvent="copy_clone" className="ml-auto shrink-0 px-2 py-1 text-xs md:ml-0" />
     </div>
   );
 }

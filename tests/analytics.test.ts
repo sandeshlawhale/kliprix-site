@@ -77,17 +77,14 @@ function trackRequest(body: unknown, { ip = "203.0.113.7", ua = BROWSER } = {}) 
 // --- event allowlist --------------------------------------------------------------------
 
 test("allowlist accepts exactly the six track events", () => {
-  assert.deepEqual(
-    [...TRACK_EVENTS].sort(),
-    [
-      "copy_clone",
-      "copy_docker",
-      "download_click",
-      "download_page_view",
-      "github_click",
-      "visit",
-    ],
-  );
+  assert.deepEqual([...TRACK_EVENTS].sort(), [
+    "copy_clone",
+    "copy_docker",
+    "download_click",
+    "download_page_view",
+    "github_click",
+    "visit",
+  ]);
   for (const e of TRACK_EVENTS) assert.equal(isTrackEvent(e), true);
   for (const e of ["download", "Visit", "visit ", "", "__proto__", 1, null, undefined, {}]) {
     assert.equal(isTrackEvent(e), false, `should reject ${JSON.stringify(e)}`);
@@ -144,7 +141,10 @@ test("POST /api/track: Redis down or slow -> still 204, never throws", async () 
 test("rate limit: 30 per minute per client, then ignored; other clients unaffected", async () => {
   const m = memoryRedis();
   const send = (ip: string) =>
-    handleTrack(trackRequest({ event: "github_click" }, { ip }), { redis: m.redis, salt: "pepper" });
+    handleTrack(trackRequest({ event: "github_click" }, { ip }), {
+      redis: m.redis,
+      salt: "pepper",
+    });
 
   for (let i = 0; i < RATE_LIMIT + 10; i++) assert.equal((await send("198.51.100.1")).status, 204);
   assert.equal(m.data.get("count:github_click:total"), RATE_LIMIT);

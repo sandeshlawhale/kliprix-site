@@ -3,15 +3,20 @@
 import { useState } from "react";
 import { CheckIcon, CopyIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { track } from "@/lib/track";
+import type { TrackEvent } from "@/lib/analytics/core";
 
 export function CopyButton({
   text,
   label = "Copy",
   className,
+  trackEvent,
 }: {
   text: string;
   label?: string;
   className?: string;
+  /** Counted (anonymously) after a successful copy. */
+  trackEvent?: TrackEvent;
 }) {
   const [done, setDone] = useState(false);
 
@@ -24,6 +29,7 @@ export function CopyButton({
       ok = copyWithSelection(text);
     }
     if (!ok) return; // the text stays visible and selectable
+    if (trackEvent) track(trackEvent);
     setDone(true);
     setTimeout(() => setDone(false), 1500);
   }

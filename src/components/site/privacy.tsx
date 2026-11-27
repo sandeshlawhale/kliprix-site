@@ -66,7 +66,12 @@ const facts: {
     title: "RAM is enough",
     text: "Runs on everyday laptops. Just a bit slower.",
   },
-  { icon: EyeOffIcon, to: 0, title: "Trackers", text: "No account, no watermark, no analytics." },
+  {
+    icon: EyeOffIcon,
+    to: 0,
+    title: "Trackers in the app",
+    text: "This site only counts anonymous clicks. No cookies.",
+  },
   {
     icon: TerminalIcon,
     to: 1,

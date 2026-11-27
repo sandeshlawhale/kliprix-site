@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { downloadPage, repoUrl } from "@/lib/site";
@@ -80,12 +81,12 @@ export function Footer() {
           >
             Docs
           </a>
-          <a href="/#feedback" className="hover:text-foreground">
+          <Link href="/#feedback" className="hover:text-foreground">
             Feedback
-          </a>
-          <a href="/#privacy" className="hover:text-foreground">
+          </Link>
+          <Link href="/#privacy" className="hover:text-foreground">
             Privacy
-          </a>
+          </Link>
         </nav>
       </div>
     </footer>
