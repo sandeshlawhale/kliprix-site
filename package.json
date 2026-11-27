@@ -7,9 +7,11 @@
     "build": "node scripts/next.mjs build",
     "lint": "eslint",
     "typecheck": "node scripts/next.mjs typegen && tsc --noEmit",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "test": "node --test --disable-warning=MODULE_TYPELESS_PACKAGE_JSON \"tests/**/*.test.ts\""
   },
   "dependencies": {
+    "@upstash/redis": "1.41.1",
     "class-variance-authority": "0.7.1",
     "cn": "0.5.2",
     "lucide-react": "1.75.0",
