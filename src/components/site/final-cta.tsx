@@ -1,6 +1,6 @@
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { repoUrl, site } from "@/lib/site";
+import { downloadPage, repoUrl } from "@/lib/site";
 import { InstallCommand } from "./install-command";
 import { GitHubIcon, Logo } from "./icons";
 
@@ -19,7 +19,7 @@ export function FinalCta() {
         </h2>
         <div className="reveal mt-8 flex justify-center gap-2.5 sm:gap-3">
           <a
-            href={site.downloadZip}
+            href={downloadPage}
             className={cn(
               buttonVariants({ size: "lg" }),
               "h-11 rounded-xl px-4 text-[14px] font-semibold glow-brand sm:h-12 sm:px-5 sm:text-[15px]",
@@ -80,10 +80,10 @@ export function Footer() {
           >
             Docs
           </a>
-          <a href="#feedback" className="hover:text-foreground">
+          <a href="/#feedback" className="hover:text-foreground">
             Feedback
           </a>
-          <a href="#privacy" className="hover:text-foreground">
+          <a href="/#privacy" className="hover:text-foreground">
             Privacy
           </a>
         </nav>
