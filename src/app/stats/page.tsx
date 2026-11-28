@@ -10,6 +10,7 @@ import { getRedis } from "@/lib/analytics/redis";
 import { getRepoStats, type RepoStats } from "@/lib/github";
 import { cn } from "@/lib/utils";
 import { site } from "@/lib/site";
+import { ResetCounters } from "@/components/site/reset-counters";
 
 /*
  * Private stats. src/proxy.ts asks for STATS_PASSWORD (HTTP Basic Auth) before this renders.
@@ -296,11 +297,14 @@ export default async function StatsPage() {
             Anonymous counts from this site. Days are UTC. GitHub numbers refresh hourly.
           </p>
         </div>
-        {!stats && (
-          <p className="rounded-full border border-line-strong px-3 py-1 text-xs text-muted-foreground">
-            Redis data unavailable
-          </p>
-        )}
+        <div className="flex items-center gap-3">
+          {!stats && (
+            <p className="rounded-full border border-line-strong px-3 py-1 text-xs text-muted-foreground">
+              Redis data unavailable
+            </p>
+          )}
+          <ResetCounters />
+        </div>
       </header>
 
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-12">

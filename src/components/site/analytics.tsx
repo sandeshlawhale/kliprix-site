@@ -14,7 +14,8 @@ export function SiteAnalytics() {
     function onClick(ev: MouseEvent) {
       const link = (ev.target as Element | null)?.closest?.("a[href]");
       const href = link?.getAttribute("href") ?? "";
-      if (href.startsWith("https://github.com/") && !href.includes("/releases/latest/download/")) {
+      const isZip = href.includes("/releases/") && href.endsWith(".zip");
+      if (href.startsWith("https://github.com/") && !isZip) {
         track("github_click");
       }
     }

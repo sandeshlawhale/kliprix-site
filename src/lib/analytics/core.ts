@@ -8,7 +8,7 @@
  * Key scheme: count:<event>:total and count:<event>:<YYYY-MM-DD> (UTC). Rate limit keys are
  * rl:<sha256(ip + salt)> and expire after 60 s. No raw IPs, cookies or personal data are stored.
  */
-import { createHash } from "node:crypto";
+import { createHash, timingSafeEqual } from "node:crypto";
 
 /** Events the browser may send to POST /api/track. */
 export const TRACK_EVENTS = [
@@ -40,6 +40,11 @@ export interface PipelineLike {
 export interface RedisLike {
   pipeline(): PipelineLike;
   mget(...keys: string[]): Promise<unknown[]>;
+  scan(
+    cursor: string | number,
+    opts: { match: string; count: number },
+  ): Promise<[string | number, string[]]>;
+  del(...keys: string[]): Promise<number>;
 }
 
 export function isTrackEvent(value: unknown): value is TrackEvent {
@@ -96,10 +101,14 @@ export function clientIp(headers: Headers): string {
  * Fixed 60-second window per client. The first request in a window sets the expiry (NX), so
  * the window does not slide on every request. True while the client is under the limit.
  */
-export async function underRateLimit(redis: RedisLike, clientHash: string): Promise<boolean> {
-  const key = `rl:${clientHash}`;
+export async function underRateLimit(
+  redis: RedisLike,
+  clientHash: string,
+  { prefix = "rl", limit = RATE_LIMIT } = {},
+): Promise<boolean> {
+  const key = `${prefix}:${clientHash}`;
   const [count] = await redis.pipeline().incr(key).expire(key, RATE_WINDOW_SECONDS, "NX").exec();
-  return Number(count) <= RATE_LIMIT;
+  return Number(count) <= limit;
 }
 
 type Deps = { redis: RedisLike | null; timeoutMs?: number; now?: () => Date };
@@ -177,7 +186,7 @@ export async function handleTrack(
  * null when the request may continue.
  */
 export function requireBasicAuth(request: Request, password: string | undefined): Response | null {
-  if (password && basicAuthPassword(request.headers.get("authorization")) === password) {
+  if (samePassword(basicAuthPassword(request.headers.get("authorization")), password)) {
     return null;
   }
   return new Response("Authentication required.", {
@@ -201,6 +210,72 @@ function basicAuthPassword(header: string | null): string | null {
     return colon === -1 ? null : decoded.slice(colon + 1);
   } catch {
     return null;
+  }
+}
+
+/** Constant-time password check. False when either side is missing or empty. */
+export function samePassword(given: unknown, expected: string | undefined): boolean {
+  if (typeof given !== "string" || !given || !expected) return false;
+  const digest = (s: string) => createHash("sha256").update(s).digest();
+  return timingSafeEqual(digest(given), digest(expected));
+}
+
+/** Wrong reset passwords allowed per client per minute. */
+export const RESET_ATTEMPTS = 5;
+
+const json = (status: number, body: object) =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: { "Content-Type": "application/json", ...noStore },
+  });
+
+/** Deletes every count:* key (totals and days). Rate limit keys are left alone. */
+export async function resetCounts(redis: RedisLike): Promise<number> {
+  let cursor: string | number = 0;
+  let deleted = 0;
+  do {
+    const [next, keys]: [string | number, string[]] = await redis.scan(cursor, {
+      match: "count:*",
+      count: 500,
+    });
+    if (keys.length) deleted += await redis.del(...keys);
+    cursor = next;
+  } while (String(cursor) !== "0");
+  return deleted;
+}
+
+/**
+ * POST /api/stats/reset { "password": "..." }: clears all counters when the password matches
+ * STATS_PASSWORD. 401 for a wrong password, 429 after RESET_ATTEMPTS tries a minute, 503 when
+ * Redis is not configured or fails.
+ */
+export async function handleReset(
+  request: Request,
+  deps: { redis: RedisLike | null; password: string | undefined; salt: string },
+): Promise<Response> {
+  const { redis, password, salt } = deps;
+  if (!redis) return json(503, { error: "Redis is not configured." });
+
+  let given: unknown;
+  try {
+    const body: unknown = JSON.parse(await request.text());
+    given =
+      typeof body === "object" && body !== null ? (body as { password?: unknown }).password : null;
+  } catch {
+    return json(400, { error: "Send the password as JSON." });
+  }
+
+  try {
+    const id = hashClient(clientIp(request.headers), salt);
+    if (!(await underRateLimit(redis, id, { prefix: "rl:reset", limit: RESET_ATTEMPTS }))) {
+      return json(429, { error: "Too many tries. Wait a minute." });
+    }
+    if (!samePassword(given, password)) return json(401, { error: "Wrong password." });
+    const deleted = await resetCounts(redis);
+    return json(200, { deleted });
+  } catch (err) {
+    warn("reset failed", err);
+    return json(503, { error: "Redis is unavailable. Nothing was reset." });
   }
 }
 

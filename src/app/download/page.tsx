@@ -3,9 +3,13 @@ import { ArrowUpRightIcon } from "lucide-react";
 import { Nav } from "@/components/site/nav";
 import { Footer } from "@/components/site/final-cta";
 import { Eyebrow } from "@/components/site/section-head";
-import { Help, InstallOptions, Requirements } from "@/components/site/download";
+import { Help, InstallOptions, Requirements, type DownloadRow } from "@/components/site/download";
 import { TrackView } from "@/components/site/analytics";
 import { site } from "@/lib/site";
+import { getReleases } from "@/lib/github";
+
+// Static, rebuilt at most once an hour so new GitHub releases show up in the table.
+export const revalidate = 3600;
 
 const title = `Download Kliprix ${site.version} for Windows, macOS and Linux`;
 const description =
@@ -33,12 +37,45 @@ const released = new Date(`${site.releaseDate}T00:00:00Z`).toLocaleDateString("e
   year: "numeric",
 });
 
-export default function DownloadPage() {
+/**
+ * Every published release with a Kliprix.zip, newest first. The newest goes through
+ * /api/download (counted); older ones link to their ZIP. If GitHub can't be reached, the
+ * release in data/site.json is the only row.
+ */
+async function downloadRows(): Promise<DownloadRow[]> {
+  const releases = await getReleases(site.repo);
+  if (releases?.length) {
+    return releases.map((r, i) => ({
+      version: r.version,
+      date: r.publishedAt?.slice(0, 10) ?? null,
+      size: r.zipSize,
+      href: i === 0 ? "/api/download" : r.zipUrl,
+      fileUrl: i === 0 ? site.downloadUrl : r.zipUrl,
+      notesUrl: r.notesUrl,
+      latest: i === 0,
+    }));
+  }
+  return [
+    {
+      version: site.version,
+      date: site.releaseDate,
+      size: null,
+      href: "/api/download",
+      fileUrl: site.downloadUrl,
+      notesUrl: site.releaseNotesUrl,
+      latest: true,
+    },
+  ];
+}
+
+export default async function DownloadPage() {
+  const rows = await downloadRows();
   return (
     <>
       <Nav />
       <main className="relative">
         <div className="hero-glow pointer-events-none absolute inset-x-0 -top-52 h-[600px] opacity-50" />
+        <div className="hero-grid pointer-events-none absolute inset-x-0 top-0 h-[420px] opacity-50" />
         <div className="relative mx-auto max-w-[1200px] px-5 pt-[clamp(36px,6vw,64px)] pb-[clamp(56px,8vw,96px)] sm:px-8">
           <header className="flex flex-wrap items-end justify-between gap-x-8 gap-y-4">
             <div>
@@ -65,7 +102,7 @@ export default function DownloadPage() {
           </header>
 
           <section aria-label="Install options" className="mt-8 sm:mt-10">
-            <InstallOptions />
+            <InstallOptions releases={rows} />
           </section>
 
           <section

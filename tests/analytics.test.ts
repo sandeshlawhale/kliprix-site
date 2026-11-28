@@ -3,8 +3,10 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   RATE_LIMIT,
+  RESET_ATTEMPTS,
   TRACK_EVENTS,
   handleDownload,
+  handleReset,
   handleTrack,
   isBot,
   isTrackEvent,
@@ -24,6 +26,7 @@ function memoryRedis() {
   const data = new Map<string, number>();
   const ttl = new Map<string, number>();
   let requests = 0;
+  let scanSnapshot: string[] = [];
   const redis: RedisLike = {
     pipeline() {
       const ops: (() => unknown)[] = [];
@@ -54,6 +57,23 @@ function memoryRedis() {
       requests++;
       return keys.map((k) => data.get(k) ?? null);
     },
+    // Returns matches two at a time, so a reset has to follow the cursor. Like Redis, a scan
+    // sees the keys that existed when it started, even if some are deleted along the way.
+    async scan(cursor, { match }) {
+      requests++;
+      const prefix = match.replace(/\*$/, "");
+      if (Number(cursor) === 0) {
+        scanSnapshot = [...data.keys()].filter((k) => k.startsWith(prefix)).sort();
+      }
+      const all = scanSnapshot;
+      const start = Number(cursor);
+      const next = start + 2 >= all.length ? 0 : start + 2;
+      return [next, all.slice(start, start + 2)];
+    },
+    async del(...keys) {
+      requests++;
+      return keys.filter((k) => data.delete(k)).length;
+    },
   };
   return { redis, data, ttl, requests: () => requests };
 }
@@ -63,7 +83,7 @@ function brokenRedis(mode: "error" | "hang"): RedisLike {
   const run = () =>
     mode === "error" ? Promise.reject(new Error("ECONNREFUSED")) : new Promise<never>(() => {});
   const p: PipelineLike = { incr: () => p, expire: () => p, exec: run };
-  return { pipeline: () => p, mget: run };
+  return { pipeline: () => p, mget: run, scan: run, del: run };
 }
 
 function trackRequest(body: unknown, { ip = "203.0.113.7", ua = BROWSER } = {}) {
@@ -272,4 +292,89 @@ test("readStats: totals and the last 30 UTC days in one request", async () => {
   assert.equal(stats.totals.copy_docker, 0);
   assert.equal(stats.days[29].counts.visit, 5);
   assert.equal(stats.days[0].counts.download, 2);
+});
+
+// --- reset ------------------------------------------------------------------------------
+
+const resetRequest = (password: unknown, ip = "203.0.113.50") =>
+  new Request("https://kliprix.test/api/stats/reset", {
+    method: "POST",
+    headers: { "x-forwarded-for": ip },
+    body: JSON.stringify({ password }),
+  });
+
+function seeded() {
+  const m = memoryRedis();
+  for (const k of [
+    "count:visit:total",
+    "count:visit:2026-11-27",
+    "count:download:total",
+    "count:download:2026-11-26",
+    "count:copy_docker:total",
+  ]) {
+    m.data.set(k, 3);
+  }
+  return m;
+}
+
+test("reset: right password deletes every count key, following the scan cursor", async () => {
+  const m = seeded();
+  const res = await handleReset(resetRequest("correct horse"), {
+    redis: m.redis,
+    password: "correct horse",
+    salt: "s",
+  });
+  assert.equal(res.status, 200);
+  assert.deepEqual(await res.json(), { deleted: 5 });
+  assert.equal([...m.data.keys()].filter((k) => k.startsWith("count:")).length, 0);
+});
+
+test("reset: wrong, missing or unset password -> 401/400, nothing deleted", async () => {
+  for (const [given, configured, status] of [
+    ["wrong", "correct horse", 401],
+    ["", "correct horse", 401],
+    [null, "correct horse", 401],
+    ["anything", undefined, 401],
+    ["", undefined, 401],
+  ] as const) {
+    const m = seeded();
+    const res = await handleReset(resetRequest(given), {
+      redis: m.redis,
+      password: configured,
+      salt: "s",
+    });
+    assert.equal(res.status, status, `given ${given}, configured ${configured}`);
+    assert.equal(m.data.get("count:visit:total"), 3);
+  }
+  const bad = await handleReset(
+    new Request("https://kliprix.test/api/stats/reset", { method: "POST", body: "nope" }),
+    { redis: memoryRedis().redis, password: "x", salt: "s" },
+  );
+  assert.equal(bad.status, 400);
+});
+
+test("reset: only a few tries a minute per client, then 429 even with the right password", async () => {
+  const m = seeded();
+  const deps = { redis: m.redis, password: "correct horse", salt: "s" };
+  for (let i = 0; i < RESET_ATTEMPTS; i++) {
+    assert.equal((await handleReset(resetRequest("guess"), deps)).status, 401);
+  }
+  assert.equal((await handleReset(resetRequest("correct horse"), deps)).status, 429);
+  assert.equal(m.data.get("count:visit:total"), 3);
+  // Another client is not blocked.
+  assert.equal(
+    (await handleReset(resetRequest("correct horse", "198.51.100.77"), deps)).status,
+    200,
+  );
+});
+
+test("reset: Redis down or not configured -> 503, never throws", async () => {
+  const down = await handleReset(resetRequest("pw"), {
+    redis: brokenRedis("error"),
+    password: "pw",
+    salt: "s",
+  });
+  assert.equal(down.status, 503);
+  const none = await handleReset(resetRequest("pw"), { redis: null, password: "pw", salt: "s" });
+  assert.equal(none.status, 503);
 });

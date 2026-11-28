@@ -15,9 +15,24 @@ import {
 import { buttonVariants } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
-import { repoUrl, site } from "@/lib/site";
+import { repoUrl } from "@/lib/site";
 import type { TrackEvent } from "@/lib/analytics/core";
 import { CopyButton } from "./copy-button";
+
+/** One row of the downloads table. Built on the server (src/app/download/page.tsx). */
+export type DownloadRow = {
+  version: string;
+  /** ISO date, e.g. "2026-11-27", or null when unknown. */
+  date: string | null;
+  /** Bytes, or null when unknown. */
+  size: number | null;
+  /** Where the button goes: /api/download for the latest (counted), the ZIP itself otherwise. */
+  href: string;
+  /** The ZIP on GitHub, for "Didn't start? Click here". */
+  fileUrl: string;
+  notesUrl: string;
+  latest: boolean;
+};
 
 type Os = "windows" | "macos" | "linux";
 const osLabels: Record<Os, string> = { windows: "Windows", macos: "macOS", linux: "Linux" };
@@ -44,17 +59,22 @@ const startCmds = [
 ];
 const appUrl = "http://localhost:3000";
 
-const released = new Date(`${site.releaseDate}T00:00:00Z`).toLocaleDateString("en-US", {
-  timeZone: "UTC",
-  day: "numeric",
-  month: "short",
-  year: "numeric",
-});
+const formatDate = (iso: string) =>
+  new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-US", {
+    timeZone: "UTC",
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+const formatSize = (bytes: number) =>
+  bytes >= 1024 * 1024
+    ? `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+    : `${Math.max(1, Math.round(bytes / 1024))} KB`;
 
 /** One command; its copy button shows on hover. Long commands wrap instead of scrolling. */
 function Command({ cmd, trackEvent }: { cmd: string; trackEvent?: TrackEvent }) {
   return (
-    <div className="copy-host flex items-center gap-2 rounded-lg border border-line bg-black/30 py-1 pr-1 pl-3">
+    <div className="copy-host flex items-center gap-2 rounded-md bg-white/[0.04] py-1 pr-1 pl-3">
       <code className="min-w-0 flex-1 py-1 font-mono text-[12.5px] leading-relaxed [overflow-wrap:anywhere] text-[#d8d8de] sm:text-[13px]">
         {cmd}
       </code>
@@ -63,67 +83,27 @@ function Command({ cmd, trackEvent }: { cmd: string; trackEvent?: TrackEvent }) 
   );
 }
 
-type Detail = { label: string; value: React.ReactNode };
-
-/**
- * Details as a one-row table: labels on top, values below, one column each (two per row on
- * phones). `action` sits at the end of the row; `footer` spans the full width below it.
- */
-function DetailsTable({
-  items,
-  action,
-  footer,
-}: {
-  items: Detail[];
-  action?: React.ReactNode;
-  footer?: React.ReactNode;
-}) {
-  return (
-    <div className="overflow-hidden rounded-2xl border border-line bg-line">
-      <div className="grid gap-px md:flex">
-        <dl className="grid flex-1 grid-cols-2 gap-px md:auto-cols-fr md:grid-flow-col md:grid-cols-none [&>div:last-child:nth-child(odd)]:col-span-2 md:[&>div:last-child:nth-child(odd)]:col-span-1">
-          {items.map((i) => (
-            <div key={i.label} className="flex flex-col bg-panel">
-              <dt className="bg-white/[0.025] px-4 py-2 text-[11px] font-medium tracking-wider text-dim uppercase">
-                {i.label}
-              </dt>
-              <dd className="flex-1 px-4 py-3 text-[14px] font-medium">{i.value}</dd>
-            </div>
-          ))}
-        </dl>
-        {action && (
-          <div className="flex items-center justify-center bg-panel p-4 md:px-5">{action}</div>
-        )}
-      </div>
-      {footer && <div className="mt-px bg-panel p-3 sm:p-4">{footer}</div>}
-    </div>
-  );
-}
-
 type StepItem = { title: string; body: React.ReactNode };
 
-/** Numbered steps as a row of cards (stacked on phones). */
+/** Numbered steps side by side (stacked on phones). */
 function Steps({ steps }: { steps: StepItem[] }) {
   return (
     <ol
       aria-label="Next steps"
       className={cn(
-        "grid gap-3 md:grid-cols-2",
+        "grid gap-x-8 gap-y-7 md:grid-cols-2",
         steps.length === 4 ? "xl:grid-cols-4" : "lg:grid-cols-3",
       )}
     >
       {steps.map((s, i) => (
-        <li key={s.title} className="flex flex-col rounded-2xl border border-line bg-panel p-4">
-          <span className="flex items-center gap-2.5">
-            <span
-              aria-hidden="true"
-              className="grid size-6 shrink-0 place-items-center rounded-full bg-brand/15 text-[12px] font-semibold text-brand tabular-nums"
-            >
-              {i + 1}
+        <li key={s.title}>
+          <p className="flex items-baseline gap-2 text-[15px] font-semibold">
+            <span className="text-brand tabular-nums" aria-hidden="true">
+              {i + 1}.
             </span>
-            <span className="text-[15px] font-semibold">{s.title}</span>
-          </span>
-          <div className="mt-3 space-y-2 text-[13px] leading-relaxed text-muted-foreground">
+            {s.title}
+          </p>
+          <div className="mt-2.5 space-y-2 text-[13px] leading-relaxed text-muted-foreground">
             {s.body}
           </div>
         </li>
@@ -192,8 +172,11 @@ function startSteps(unzip: boolean): StepItem[] {
   ];
 }
 
-function ZipPanel() {
-  const [started, setStarted] = useState(false);
+const th = "pb-3 pr-6 text-left text-[13px] font-normal text-dim";
+const td = "py-3 pr-6 align-middle";
+
+function ZipPanel({ releases }: { releases: DownloadRow[] }) {
+  const [started, setStarted] = useState<DownloadRow | null>(null);
   const heading = useRef<HTMLHeadingElement>(null);
 
   // Keyboard and screen reader users land on the new view instead of a removed button.
@@ -203,7 +186,7 @@ function ZipPanel() {
 
   if (started) {
     return (
-      <div className="space-y-5">
+      <div className="space-y-8">
         <div className="flex items-start gap-3">
           <CircleCheckIcon className="mt-0.5 size-6 shrink-0 text-ok" aria-hidden="true" />
           <div>
@@ -215,9 +198,9 @@ function ZipPanel() {
               Your download has started
             </h2>
             <p className="mt-1 text-sm text-muted-foreground" role="status">
-              Kliprix.zip, version {site.version}. Didn&apos;t start?{" "}
+              Kliprix.zip, version {started.version}. Didn&apos;t start?{" "}
               <a
-                href={site.downloadUrl}
+                href={started.fileUrl}
                 className="font-medium text-foreground underline underline-offset-2 hover:text-brand"
               >
                 Click here
@@ -232,33 +215,80 @@ function ZipPanel() {
   }
 
   return (
-    <div className="space-y-3">
-      <DetailsTable
-        items={[
-          { label: "Version", value: site.version },
-          { label: "Released", value: <time dateTime={site.releaseDate}>{released}</time> },
-          { label: "File", value: <span className="font-mono text-[13px]">Kliprix.zip</span> },
-          { label: "Works on", value: "Windows, macOS, Linux" },
-          { label: "License", value: "MIT, free" },
-        ]}
-        action={
-          <a
-            href="/api/download"
-            onClick={() => setStarted(true)}
-            className={cn(
-              buttonVariants({ size: "lg" }),
-              "h-11 w-full gap-2 rounded-xl px-5 text-[15px] font-semibold glow-brand md:w-auto",
-            )}
-          >
-            <DownloadIcon className="size-[18px]" />
-            Download
-          </a>
-        }
-      />
-      <p className="text-[13px] text-muted-foreground">
-        Needs Python, Node.js and FFmpeg.{" "}
+    <div>
+      <table className="w-full border-collapse text-[14px]">
+        <caption className="sr-only">Kliprix downloads</caption>
+        <thead>
+          <tr>
+            <th scope="col" className={th}>
+              Version
+            </th>
+            <th scope="col" className={th}>
+              Released
+            </th>
+            <th scope="col" className={cn(th, "hidden sm:table-cell")}>
+              Size
+            </th>
+            <th scope="col" className={cn(th, "hidden md:table-cell")}>
+              Notes
+            </th>
+            <th scope="col" className={cn(th, "pr-0")}>
+              <span className="sr-only">Download</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {releases.map((r) => (
+            <tr key={r.version}>
+              <td className={cn(td, "font-medium whitespace-nowrap")}>
+                {r.version}
+                {r.latest && (
+                  <span className="ml-2 text-[12px] font-normal text-brand">Latest</span>
+                )}
+              </td>
+              <td className={cn(td, "whitespace-nowrap text-muted-foreground")}>
+                {r.date ? <time dateTime={r.date}>{formatDate(r.date)}</time> : "–"}
+              </td>
+              <td
+                className={cn(td, "hidden whitespace-nowrap text-muted-foreground sm:table-cell")}
+              >
+                {r.size ? formatSize(r.size) : "–"}
+              </td>
+              <td className={cn(td, "hidden md:table-cell")}>
+                <a
+                  href={r.notesUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-0.5 text-muted-foreground hover:text-foreground"
+                >
+                  What&apos;s new
+                  <ArrowUpRightIcon className="size-3.5" aria-hidden="true" />
+                </a>
+              </td>
+              <td className={cn(td, "pr-0 text-right")}>
+                <a
+                  href={r.href}
+                  onClick={() => setStarted(r)}
+                  aria-label={`Download Kliprix ${r.version}`}
+                  className={cn(
+                    buttonVariants({ variant: r.latest ? "default" : "ghost", size: "lg" }),
+                    "gap-2 rounded-md px-3.5",
+                    !r.latest && "text-muted-foreground",
+                  )}
+                >
+                  <DownloadIcon className="size-4" aria-hidden="true" />
+                  Download
+                </a>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <p className="mt-4 text-[13px] text-muted-foreground">
+        Kliprix.zip for Windows, macOS and Linux. Free, MIT license. Needs Python, Node.js and
+        FFmpeg:{" "}
         <a href="#requirements" className="underline underline-offset-2 hover:text-foreground">
-          See what you need
+          see what you need
         </a>
         .
       </p>
@@ -268,16 +298,14 @@ function ZipPanel() {
 
 function GitPanel() {
   return (
-    <div className="space-y-5">
-      <DetailsTable
-        items={[
-          { label: "Source", value: "GitHub" },
-          { label: "Branch", value: <span className="font-mono text-[13px]">main</span> },
-          { label: "Needs", value: "Git" },
-          { label: "Update", value: <span className="font-mono text-[13px]">git pull</span> },
-        ]}
-        footer={<Command cmd={cloneCmd} trackEvent="copy_clone" />}
-      />
+    <div className="space-y-8">
+      <div className="max-w-[720px] space-y-2.5">
+        <p className="text-sm text-muted-foreground">
+          Needs Git. Clone the repository, then update later with{" "}
+          <code className="font-mono text-foreground">git pull</code>.
+        </p>
+        <Command cmd={cloneCmd} trackEvent="copy_clone" />
+      </div>
       <Steps steps={startSteps(false)} />
     </div>
   );
@@ -285,28 +313,24 @@ function GitPanel() {
 
 function DockerPanel() {
   return (
-    <div className="space-y-3">
-      <DetailsTable
-        items={[
-          { label: "Needs", value: "Git, Docker" },
-          { label: "GPU", value: "CPU only" },
-          { label: "Memory", value: "Docker Desktop needs ~2 GB RAM" },
-          { label: "Opens at", value: <AppLink /> },
-        ]}
-        footer={<Command cmd={dockerCmd} trackEvent="copy_docker" />}
-      />
-      <p className="text-[13px] text-muted-foreground">
-        Python, Node.js and FFmpeg come inside the containers. On a 4 GB PC, use the ZIP instead.
+    <div className="max-w-[720px] space-y-2.5">
+      <p className="text-sm text-muted-foreground">
+        Needs Git and Docker. Python, Node.js and FFmpeg come inside the containers.
+      </p>
+      <Command cmd={dockerCmd} trackEvent="copy_docker" />
+      <p className="text-sm text-muted-foreground">
+        Then open <AppLink />. CPU only: captions don&apos;t use an NVIDIA GPU in Docker. Docker
+        Desktop needs about 2 GB of RAM, so on a 4 GB PC use the ZIP instead.
       </p>
     </div>
   );
 }
 
 /** ZIP (default), Git or Docker. */
-export function InstallOptions() {
+export function InstallOptions({ releases }: { releases: DownloadRow[] }) {
   return (
     <Tabs defaultValue="zip">
-      <TabsList aria-label="How to install">
+      <TabsList aria-label="How to install" className="-ml-3">
         <TabsTrigger value="zip">
           <DownloadIcon aria-hidden="true" />
           ZIP
@@ -320,13 +344,13 @@ export function InstallOptions() {
           Docker
         </TabsTrigger>
       </TabsList>
-      <TabsContent value="zip" className="mt-4 rounded-2xl">
-        <ZipPanel />
+      <TabsContent value="zip" className="mt-6 rounded-md">
+        <ZipPanel releases={releases} />
       </TabsContent>
-      <TabsContent value="git" className="mt-4 rounded-2xl">
+      <TabsContent value="git" className="mt-6 rounded-md">
         <GitPanel />
       </TabsContent>
-      <TabsContent value="docker" className="mt-4 rounded-2xl">
+      <TabsContent value="docker" className="mt-6 rounded-md">
         <DockerPanel />
       </TabsContent>
     </Tabs>
@@ -389,7 +413,7 @@ function RequirementList({ os }: { os: Os }) {
         return (
           <li
             key={r.title}
-            className="grid gap-3 px-4 py-4 sm:px-5 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] md:items-center md:gap-8"
+            className="grid gap-3 py-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] md:items-center md:gap-8"
           >
             <div className="flex gap-3">
               <CheckIcon className="mt-0.5 size-[18px] shrink-0 text-brand" aria-hidden="true" />
@@ -448,15 +472,11 @@ export function Requirements() {
         </TabsList>
       </div>
       {(Object.keys(osLabels) as Os[]).map((k) => (
-        <TabsContent
-          key={k}
-          value={k}
-          className="mt-5 overflow-hidden rounded-2xl border border-line bg-panel"
-        >
+        <TabsContent key={k} value={k} className="mt-3 rounded-md">
           <RequirementList os={k} />
         </TabsContent>
       ))}
-      <p className="mt-3 text-[13px] text-muted-foreground">
+      <p className="mt-2 text-[13px] text-muted-foreground">
         Not sure? After downloading, <code className="font-mono text-foreground">{doctorCmd}</code>{" "}
         checks all of it.
       </p>
@@ -498,7 +518,7 @@ export function Help() {
             <a
               href={h.href}
               {...(h.external ? { target: "_blank", rel: "noreferrer" } : {})}
-              className="group flex h-full flex-col rounded-2xl border border-line bg-panel p-5 transition-colors outline-none hover:border-brand/60 focus-visible:ring-3 focus-visible:ring-ring/50"
+              className="group flex h-full flex-col rounded-lg border border-line p-5 transition-colors outline-none hover:border-brand/60 focus-visible:ring-3 focus-visible:ring-ring/50"
             >
               <span className="flex items-center justify-between">
                 <h.icon className="size-5 text-brand" aria-hidden="true" />
