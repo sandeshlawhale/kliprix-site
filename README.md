@@ -42,25 +42,6 @@ working: visits, download page views, downloads, GitHub link clicks and copied i
 - Bots and link previews aren't counted.
 - If the counter is down, downloads still work.
 
-## Run it locally
-
-You need Node.js 22 or newer.
-
-```bash
-npm install
-npm run dev          # http://127.0.0.1:3100
-```
-
-The site works without any setup; the counters just switch off. To use the real database, link
-the folder to the Vercel project and pull the settings:
-
-```bash
-vercel link
-vercel env pull .env.local
-```
-
-Other commands: `npm test`, `npm run lint`, `npm run typecheck` and `npm run build`.
-
 ## License
 
 MIT, like [the app](https://github.com/sandeshlawhale/Kliprix).
