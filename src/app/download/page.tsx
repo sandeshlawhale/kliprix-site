@@ -38,31 +38,33 @@ export default function DownloadPage() {
     <>
       <Nav />
       <main className="relative">
-        <div className="hero-glow pointer-events-none absolute inset-x-0 -top-52 h-[700px] opacity-70" />
-        <div className="relative mx-auto max-w-[960px] px-5 pt-[clamp(36px,7vw,72px)] pb-[clamp(56px,8vw,96px)] sm:px-8">
-          <header className="text-center">
-            <Eyebrow>
-              Version {site.version} · Released <time dateTime={site.releaseDate}>{released}</time>
-            </Eyebrow>
-            <h1 className="mt-3 text-[clamp(40px,7vw,64px)] leading-[1.02] font-bold">
-              Download <span className="text-gradient">Kliprix</span>
-            </h1>
-            <p className="mx-auto mt-4 max-w-[560px] text-[clamp(16px,2vw,18px)] leading-relaxed text-muted-foreground">
-              Free and open source. Unzip it, run one command, and Kliprix opens in your browser.
-              Your videos stay on your computer.
-            </p>
+        <div className="hero-glow pointer-events-none absolute inset-x-0 -top-52 h-[600px] opacity-50" />
+        <div className="relative mx-auto max-w-[1200px] px-5 pt-[clamp(36px,6vw,64px)] pb-[clamp(56px,8vw,96px)] sm:px-8">
+          <header className="flex flex-wrap items-end justify-between gap-x-8 gap-y-4">
+            <div>
+              <Eyebrow>
+                Version {site.version} · Released{" "}
+                <time dateTime={site.releaseDate}>{released}</time>
+              </Eyebrow>
+              <h1 className="mt-3 text-[clamp(38px,6vw,56px)] leading-[1.02] font-bold">
+                Download <span className="text-gradient">Kliprix</span>
+              </h1>
+              <p className="mt-3 max-w-[560px] text-[clamp(15px,1.8vw,17px)] leading-relaxed text-muted-foreground">
+                Free and open source. Unzip it, run one command, and Kliprix opens in your browser.
+              </p>
+            </div>
             <a
               href={site.releaseNotesUrl}
               target="_blank"
               rel="noreferrer"
-              className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-brand underline-offset-4 hover:underline"
+              className="inline-flex items-center gap-1 text-sm font-medium text-brand underline-offset-4 hover:underline"
             >
               What&apos;s new in {site.version}
               <ArrowUpRightIcon className="size-4" aria-hidden="true" />
             </a>
           </header>
 
-          <section aria-label="Install options" className="mt-10">
+          <section aria-label="Install options" className="mt-8 sm:mt-10">
             <InstallOptions />
           </section>
 

@@ -34,18 +34,21 @@ export function CopyButton({
     setTimeout(() => setDone(false), 1500);
   }
 
+  // Icon only. Inside a "copy-host" element it shows on hover or keyboard focus (on devices
+  // with a mouse; touch screens always show it), see globals.css.
   return (
     <button
       type="button"
       onClick={copy}
       aria-label={done ? "Copied" : `${label}: ${text}`}
+      title={done ? "Copied" : label}
+      data-done={done || undefined}
       className={cn(
-        "inline-flex items-center gap-1 rounded-md border border-line-strong px-1.5 py-0.5 text-[10.5px] text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground",
+        "copy-reveal grid size-7 shrink-0 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none",
         className,
       )}
     >
-      {done ? <CheckIcon className="size-3 text-ok" /> : <CopyIcon className="size-3" />}
-      {done ? "Copied" : label}
+      {done ? <CheckIcon className="size-3.5 text-ok" /> : <CopyIcon className="size-3.5" />}
     </button>
   );
 }
