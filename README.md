@@ -5,7 +5,7 @@ stream VODs into ready-to-post vertical shorts, with captions, titles and hashta
 computer.
 
 The site explains what Kliprix does, shows real results, answers common questions and gets people
-to download it. It is a separate, fully static Next.js site (Tailwind 4, shadcn/ui, Motion) and
+to download it. It is a separate Next.js site, static apart from a few small server routes for anonymous counts, (Tailwind 4, shadcn/ui, Motion) and
 shares no code with the app in `frontend/` and `backend/` (decision D-064).
 
 ## What Kliprix does
@@ -54,6 +54,7 @@ Shorts, Reels and TikToks without paying for a cloud clipping tool.
 | **FAQ** | Price, hardware, supported sites, posting, privacy, operating systems |
 | **Feedback** | A short form for a review, an idea or a bug report |
 | **Get started** | Download, Star on GitHub, and the one Windows command that installs and starts the app |
+| **/download** | Version and release date, what you need (with the install command for each OS), the ZIP, Git and Docker install options, the steps after downloading, and where to get help |
 
 ## Sharing the site
 
@@ -104,12 +105,12 @@ file, commit and push, and the next deploy picks it up.
 
 | File | What it holds |
 |---|---|
-| `data/site.json` | Public address (`siteUrl`), GitHub repo, download link, feedback form address |
+| `data/site.json` | Public address (`siteUrl`), GitHub repo, the latest release (`version`, `releaseDate`, `releaseNotesUrl`, `downloadUrl`), feedback form address |
 | `data/reviews.json` | Reviews shown in the Feedback section (starts empty) |
 
 ## Hosting
 
-The site is plain static files, hosted on Vercel from the `landing-site` branch. The `main`
+The site is hosted on Vercel from the `landing-site` branch. The `main`
 branch stays the clean app people download, so `landing-site` is never merged into it.
 
 Vercel settings:
@@ -125,13 +126,43 @@ Vercel settings:
   `data/site.json` → `siteUrl`; it wins over Vercel's.
 - `vercel.json` lets browsers cache `/media` for 7 days and the icons for 1 day.
 
+## Downloads and anonymous counts
+
+Every Download button opens `/download`. Its ZIP button goes to `/api/download`, which counts the
+download and redirects to `downloadUrl` (the `Kliprix.zip` asset of the latest GitHub release in
+`sandeshlawhale/Kliprix`). After a new release, update `version`, `releaseDate` and
+`releaseNotesUrl` in `data/site.json`.
+
+The site counts a few anonymous events in Upstash Redis (connected through the Vercel
+Marketplace): visits (once per tab), `/download` views, downloads, GitHub link clicks and copies
+of the clone and Docker commands. No cookies, no IDs, no raw IPs: the browser sends only the
+event name, `/api/track` accepts only known names and allows 30 a minute per visitor, keyed by a
+salted hash of the IP that expires after 60 seconds. Bots are not counted. If Redis is down,
+downloads still go through.
+
+`/stats` shows the totals, the last 30 days, the funnel (visit → download page → download →
+GitHub release downloads) and GitHub stars. It asks for a password (any username) and is not
+linked anywhere or listed for search engines.
+
+Environment variables (names in `.env.example`; set them in Vercel → Settings → Environment
+Variables, or pull them with `vercel env pull .env.local`):
+
+| Variable | What it is |
+|---|---|
+| `KV_REST_API_URL`, `KV_REST_API_TOKEN` | Set by the Upstash for Redis integration |
+| `IP_HASH_SALT` | A long random string for hashing IPs in the rate limit |
+| `STATS_PASSWORD` | Password for `/stats`. Without it `/stats` stays locked |
+| `GITHUB_TOKEN` | Optional. Raises the GitHub API limit for `/stats` |
+
+Tests: `npm test` (Node's built-in test runner).
+
 ## Speed
 
 - One font file (Inter, 48 KB) loads up front. The caption font loads only when its section
   comes into view.
 - The hero shows still posters at once. The clip videos start downloading only after the page
   has loaded, so they never slow the first view.
-- Everything is static and served from Vercel's CDN.
+- Every page except `/stats` is static and served from Vercel's CDN.
 - Every animation follows the visitor's "reduce motion" setting.
 
 ## Media

@@ -4,7 +4,7 @@ import { DownloadIcon } from "lucide-react";
 import { motion, type Variants } from "motion/react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { site } from "@/lib/site";
+import { downloadPage } from "@/lib/site";
 import { HeroReel } from "./hero-reel";
 
 const container: Variants = { show: { transition: { staggerChildren: 0.09 } } };
@@ -64,7 +64,7 @@ export function Hero() {
 
         <motion.div variants={item} className="mt-[clamp(20px,3.2vh,32px)] flex justify-center">
           <a
-            href={site.downloadZip}
+            href={downloadPage}
             className={cn(
               buttonVariants({ size: "lg" }),
               "h-12 gap-2.5 rounded-xl px-6 text-[15px] font-semibold glow-brand",

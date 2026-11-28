@@ -1,6 +1,9 @@
 {
   "siteUrl": "",
   "repo": "sandeshlawhale/Kliprix",
-  "downloadZip": "https://github.com/sandeshlawhale/Kliprix/archive/refs/heads/main.zip",
+  "version": "0.1.0",
+  "releaseDate": "2026-11-27",
+  "releaseNotesUrl": "https://github.com/sandeshlawhale/Kliprix/releases/tag/v0.1.0",
+  "downloadUrl": "https://github.com/sandeshlawhale/Kliprix/releases/latest/download/Kliprix.zip",
   "reviewFormEndpoint": "https://formspree.io/f/xppdnjyv"
 }

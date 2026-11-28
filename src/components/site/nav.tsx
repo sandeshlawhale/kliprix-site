@@ -1,22 +1,23 @@
+import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { nav, repoUrl, site } from "@/lib/site";
+import { downloadPage, nav, repoUrl } from "@/lib/site";
 import { GitHubIcon, Logo } from "./icons";
 
 export function Nav() {
   return (
     <header className="sticky top-0 z-30 border-b border-line bg-background/70 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-[1200px] items-center gap-9 px-5 sm:px-8">
-        <a href="#top" aria-label="Kliprix home">
+        <Link href="/#top" aria-label="Kliprix home">
           <Logo />
-        </a>
+        </Link>
         <nav className="hidden lg:block" aria-label="Main">
           <ul className="flex gap-7 text-sm whitespace-nowrap text-muted-foreground">
             {nav.map((n) => (
               <li key={n.href}>
-                <a href={n.href} className="transition-colors hover:text-foreground">
+                <Link href={n.href} className="transition-colors hover:text-foreground">
                   {n.label}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>
@@ -32,7 +33,7 @@ export function Nav() {
             Star on GitHub
           </a>
           <a
-            href={site.downloadZip}
+            href={downloadPage}
             className={cn(buttonVariants({ size: "lg" }), "h-9 rounded-[10px] px-3.5 glow-brand")}
           >
             Download

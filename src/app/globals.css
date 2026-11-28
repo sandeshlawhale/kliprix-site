@@ -233,3 +233,17 @@
     0 1px 0 #000,
     0 0 4px #000;
 }
+
+/* Copy buttons appear when the pointer is over their command (or they have keyboard focus).
+   Touch screens have no hover, so there they always show. */
+@media (hover: hover) {
+  .copy-reveal {
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .copy-host:hover .copy-reveal,
+  .copy-reveal:focus-visible,
+  .copy-reveal[data-done] {
+    opacity: 1;
+  }
+}

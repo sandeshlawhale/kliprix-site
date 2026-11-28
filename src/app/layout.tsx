@@ -3,6 +3,7 @@ import { Inter, Montserrat } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { RevealObserver } from "@/components/site/reveal";
 import { MotionProvider } from "@/components/site/motion-provider";
+import { SiteAnalytics } from "@/components/site/analytics";
 import { repoUrl } from "@/lib/site";
 import { siteUrl } from "@/lib/site-url";
 import "./globals.css";
@@ -102,6 +103,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body>
         <MotionProvider>{children}</MotionProvider>
         <RevealObserver />
+        <SiteAnalytics />
         <Toaster position="bottom-center" />
       </body>
     </html>
