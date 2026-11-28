@@ -1,191 +1,123 @@
 # Kliprix website
 
-The public website for **Kliprix**, a free and open-source app that turns long YouTube videos and
-stream VODs into ready-to-post vertical shorts, with captions, titles and hashtags, on your own
-computer.
+The website for [Kliprix](https://github.com/sandeshlawhale/Kliprix), a free, open-source app
+that turns long streams and videos into vertical shorts, right on your own computer.
 
-The site explains what Kliprix does, shows real results, answers common questions and gets people
-to download it. It is a separate Next.js site, static apart from a few small server routes for anonymous counts, (Tailwind 4, shadcn/ui, Motion) and
-shares no code with the app in `frontend/` and `backend/` (decision D-064).
+**[kliprix.vercel.app](https://kliprix.vercel.app)** · [Download](https://kliprix.vercel.app/download) · [The app on GitHub](https://github.com/sandeshlawhale/Kliprix) · [Releases](https://github.com/sandeshlawhale/Kliprix/releases) · [Report a problem](https://github.com/sandeshlawhale/Kliprix/issues)
 
-## What Kliprix does
+![The Kliprix home page: "One long video in. Scroll-stopping shorts out." above a fan of real clips](docs/screenshots/home.webp)
 
-Paste up to 3 video links, press Start, and come back to finished clips:
+## About Kliprix
 
-- **Finds the best moments.** It reads chat activity, audio energy, motion and the transcript
-  together, then your AI model picks the clips and says why each one was chosen.
-- **Makes vertical shorts.** Up to 5 clips per video at 1080x1920, 30 fps: blurred background,
-  the main video framed on the face or the full frame, a punchy title on top and word-by-word
-  captions below.
-- **Writes the post for you.** A title, description, hashtags and a LinkedIn post for every clip,
-  one click to copy.
-- **Speaks your audience's language.** English or Hinglish captions (Hindi written the way people
-  type it in chat), in 3 caption styles.
-- **Lets you fix things fast.** Trim, fix a caption word, split or crop, preview live, then
-  download at full quality. No timeline to learn.
-- **Uses the AI you already have.** Gemini, Claude, OpenAI, OpenRouter, or a local model with
-  LM Studio or Ollama. Free tiers are enough.
+Paste a link to a long video, press Start, and come back to finished shorts. Kliprix reads the
+chat, the audio, the motion and what's being said to find the best moments, then cuts them into
+1080×1920 clips with word-by-word captions, a title and ready-to-post text. English or Hinglish.
 
-## How it helps
+It runs on your computer, uses whichever AI you already have (Gemini, Claude, OpenAI,
+OpenRouter, or a local model), and costs nothing. No account, no watermark, and your videos
+never leave your PC.
 
-- **Saves hours.** Turning a 3-hour stream into five shorts is a paste and a wait, not an
-  evening of scrubbing and editing.
-- **Free, for good.** No plans, no credits, no trial that runs out, and no watermark.
-- **Private.** The video never leaves your computer. No account, no tracking. Your API key is kept
-  encrypted on your PC, or only in memory if you prefer. Only the transcript text goes to the AI
-  you choose.
-- **Runs on normal hardware.** 4 GB of RAM is enough (8 GB recommended). An NVIDIA GPU makes
-  captions faster but is not required.
-- **Open source (MIT).** Anyone can read the code, suggest ideas or report problems.
+This repository is only the website. The app lives in
+[sandeshlawhale/Kliprix](https://github.com/sandeshlawhale/Kliprix).
 
-It is made for streamers, gaming channels, and anyone with long videos who wants a steady flow of
-Shorts, Reels and TikToks without paying for a cloud clipping tool.
+## The site
 
-## What visitors find on the site
+**Home** (`/`): what Kliprix does, real clips it made, how it works, the features, a side-by-side
+with cloud clipping tools, an FAQ and a feedback form.
 
-| Section | What it shows |
-|---|---|
-| **Hero** | The promise ("One long video in. Five scroll-stopping shorts out.") over a fan of real clips made by Kliprix, and a Download for Free button |
-| **AI providers** | The AI services Kliprix works with, with their logos |
-| **How it works** | Three steps (paste links, it finds the moments, download and post), each with a small animation, and a drawing of the app's batch page with real generated text |
-| **Features** | Highlight signals, caption styles, English or Hinglish, your own AI key, quick edits, vertical framing, copy-ready post text |
-| **Private by design** | The numbers that matter: free, 4 GB RAM, 0 trackers, 1 command to start |
-| **Why local** | Kliprix side by side with a typical cloud clipping tool |
-| **FAQ** | Price, hardware, supported sites, posting, privacy, operating systems |
-| **Feedback** | A short form for a review, an idea or a bug report |
-| **Get started** | Download, Star on GitHub, and the one Windows command that installs and starts the app |
-| **/download** | Version and release date, what you need (with the install command for each OS), the ZIP, Git and Docker install options, the steps after downloading, and where to get help |
+**Download** (`/download`): every release with its date and size, what you need installed
+(with a copyable command for Windows, macOS or Linux), and three ways to install: the ZIP, Git,
+or Docker. After the ZIP starts downloading, the page walks you through the first run.
 
-## Sharing the site
+![The download page: a table of releases with a Download button, and the list of what you need](docs/screenshots/download.webp)
 
-Links to the site show a rich preview in WhatsApp, LinkedIn, X, Facebook, Telegram, Slack,
-Discord and iMessage: the title, a short description and a 1200x630 image (`public/og.jpg`,
-about 90 KB). The site also has icons for phones, a web manifest, `robots.txt`, `sitemap.xml` and
-structured data, so search engines can show Kliprix as a free app.
+**Stats** (`/stats`): a private page, behind a password, for the owner. Visits, downloads, a
+30-day chart, the funnel from visit to download, GitHub stars and release downloads, and a
+button to reset the counters. It isn't linked anywhere and search engines are told to skip it.
 
-The preview image and the icons are made from the logo and the clips by
-`scripts/make-share-image.py` (needs Pillow). Run it again after replacing the clips.
+![The private stats page with totals, a 30-day chart, the funnel and a per-day table (sample numbers)](docs/screenshots/stats.webp)
 
-Apps cache previews. After a change, refresh them with the
-[LinkedIn Post Inspector](https://www.linkedin.com/post-inspector/) and the
-[Facebook Sharing Debugger](https://developers.facebook.com/tools/debug/) (also used by WhatsApp
-and Instagram). X picks up changes on its own, usually within a day.
+<sub>The stats screenshot uses sample numbers.</sub>
 
-## Feedback and reviews
+## Privacy
 
-Feedback must stay private, so the form never posts anything publicly. It sends to a form
-service that emails it to you:
+The app has no analytics at all. The website counts a few things so we know whether it's
+working: visits, download page views, downloads, GitHub link clicks and copied install commands.
 
-1. Create a free form at [Formspree](https://formspree.io) (or a similar service) and put its URL
-   in `data/site.json` → `reviewFormEndpoint`, for example `https://formspree.io/f/<id>`.
-   **Until this is set, the form refuses to send** ("Feedback isn't open yet").
-2. A visitor picks Review, Idea or Bug and writes it. You get it by email.
-3. Copy the reviews you approve into `data/reviews.json`. As soon as the list has entries, the
-   Feedback section shows the first two below the form. Only publish real reviews.
+- No cookies, no IDs, no personal data. The browser sends only the name of the event.
+- No IP addresses are stored. To stop spam, each visitor gets 30 events a minute, tracked by a
+  salted hash of their IP that disappears after 60 seconds.
+- Bots and link previews aren't counted.
+- If the counter is down, downloads still work.
 
-```json
-[
-  {
-    "name": "Rohit",
-    "role": "Gaming clips",
-    "rating": 5,
-    "text": "Turned a 3-hour VOD into five shorts while I slept.",
-    "date": "2026-12-01",
-    "url": "https://github.com/sandeshlawhale/Kliprix/issues/12"
-  }
-]
+## Run it locally
+
+You need Node.js 22 or newer.
+
+```bash
+npm install
+npm run dev          # http://127.0.0.1:3100
 ```
 
-`url` is optional (a link to where the review was posted).
+The site works without any setup; the counters just switch off. To use the real database, link
+the folder to the Vercel project and pull the settings:
+
+```bash
+vercel link
+vercel env pull .env.local
+```
+
+Other commands: `npm test`, `npm run lint`, `npm run typecheck` and `npm run build`.
+
+## Settings
+
+Set these in Vercel under **Settings → Environment Variables**. The names, without values, are
+in [`.env.example`](.env.example).
+
+| Name | What it's for |
+|---|---|
+| `KV_REST_API_URL`, `KV_REST_API_TOKEN` | Added by the Upstash for Redis integration. Where the counts live |
+| `IP_HASH_SALT` | A long random string, used to hash IPs for the rate limit |
+| `STATS_PASSWORD` | The password for `/stats` and its reset button. Without it, `/stats` stays locked |
+| `GITHUB_TOKEN` | Optional. A token with no permissions, so `/stats` and `/download` don't hit GitHub's rate limit |
 
 ## Editing the content
 
-The site's settings live in the `data/` folder and are read when the site is built. Edit a
-file, commit and push, and the next deploy picks it up.
+Everything you'd normally change is in `data/`:
 
-| File | What it holds |
-|---|---|
-| `data/site.json` | Public address (`siteUrl`), GitHub repo, the latest release (`version`, `releaseDate`, `releaseNotesUrl`, `downloadUrl`), feedback form address |
-| `data/reviews.json` | Reviews shown in the Feedback section (starts empty) |
+- **`data/site.json`**: the site address, the app's GitHub repo, the latest version, its release
+  date and notes link, the download link, and the feedback form address.
+- **`data/reviews.json`**: reviews shown under the feedback form. It starts empty. Copy in only
+  real reviews you've received.
 
-## Hosting
+**After a new app release**, update `version`, `releaseDate` and `releaseNotesUrl` in
+`data/site.json`. The download link always points to the latest release, and the table on
+`/download` picks up new releases from GitHub by itself within the hour.
 
-The site is hosted on Vercel from the `landing-site` branch. The `main`
-branch stays the clean app people download, so `landing-site` is never merged into it.
+**Feedback** goes privately to [Formspree](https://formspree.io), which emails it to you.
+Nothing is posted publicly. Put your form's address in `reviewFormEndpoint`.
 
-Vercel settings:
+**Share previews** (WhatsApp, LinkedIn, X and others) use `public/og.jpg`. If you change the
+clips, run `scripts/make-share-image.py` (needs Pillow) to rebuild it and the icons.
 
-- **Root Directory:** `site`. Framework preset Next.js, default build settings.
-- **Production branch** (Settings → Environments → Production → Branch Tracking):
-  `landing-site`.
-- **Ignored Build Step** (Settings → Build and Deployment), behavior Custom, so pushes to the
-  app branches do not rebuild the site:
-  `if [ "$VERCEL_GIT_COMMIT_REF" = "landing-site" ]; then exit 1; else exit 0; fi`
-- **Address:** Vercel's production address is used automatically for share previews and the
-  sitemap. With your own domain (or a renamed `.vercel.app` address), put it in
-  `data/site.json` → `siteUrl`; it wins over Vercel's.
-- `vercel.json` lets browsers cache `/media` for 7 days and the icons for 1 day.
+**Clips** in `public/media/` are short loops cut from real Kliprix exports. Before sharing the
+site widely, swap any clip made from someone else's video for one you own or have permission
+to use.
 
-## Downloads and anonymous counts
+## Deploying
 
-Every Download button opens `/download`. Its ZIP button goes to `/api/download`, which counts the
-download and redirects to `downloadUrl` (the `Kliprix.zip` asset of the latest GitHub release in
-`sandeshlawhale/Kliprix`). After a new release, update `version`, `releaseDate` and
-`releaseNotesUrl` in `data/site.json`.
+The site is hosted on Vercel and deploys from `main`. Push to `main` and it's live a minute
+later; every pull request gets its own preview link. Everything except `/stats` and the small
+`/api` routes is static and served from Vercel's CDN.
 
-The site counts a few anonymous events in Upstash Redis (connected through the Vercel
-Marketplace): visits (once per tab), `/download` views, downloads, GitHub link clicks and copies
-of the clone and Docker commands. No cookies, no IDs, no raw IPs: the browser sends only the
-event name, `/api/track` accepts only known names and allows 30 a minute per visitor, keyed by a
-salted hash of the IP that expires after 60 seconds. Bots are not counted. If Redis is down,
-downloads still go through.
+## Built with
 
-`/stats` shows the totals, the last 30 days, the funnel (visit → download page → download →
-GitHub release downloads) and GitHub stars. It asks for a password (any username) and is not
-linked anywhere or listed for search engines.
+[Next.js](https://nextjs.org) 16, React 19, [Tailwind CSS](https://tailwindcss.com) 4,
+[shadcn/ui](https://ui.shadcn.com), [Motion](https://motion.dev) for the animations, and
+[Upstash Redis](https://upstash.com) for the counts. AI provider logos are from
+[Lobe Icons](https://github.com/lobehub/lobe-icons) (MIT) and belong to their owners. Fonts are
+Inter and Montserrat (SIL Open Font License).
 
-Environment variables (names in `.env.example`; set them in Vercel → Settings → Environment
-Variables, or pull them with `vercel env pull .env.local`):
+## License
 
-| Variable | What it is |
-|---|---|
-| `KV_REST_API_URL`, `KV_REST_API_TOKEN` | Set by the Upstash for Redis integration |
-| `IP_HASH_SALT` | A long random string for hashing IPs in the rate limit |
-| `STATS_PASSWORD` | Password for `/stats`. Without it `/stats` stays locked |
-| `GITHUB_TOKEN` | Optional. Raises the GitHub API limit for `/stats` |
-
-Tests: `npm test` (Node's built-in test runner).
-
-## Speed
-
-- One font file (Inter, 48 KB) loads up front. The caption font loads only when its section
-  comes into view.
-- The hero shows still posters at once. The clip videos start downloading only after the page
-  has loaded, so they never slow the first view.
-- Every page except `/stats` is static and served from Vercel's CDN.
-- Every animation follows the visitor's "reduce motion" setting.
-
-## Media
-
-`public/media/clip-N.mp4` are 8-second muted loops cut from real Kliprix exports, each with a
-`clip-N.jpg` poster. `hero-reel.mp4` is the same clips side by side in one 1920x1080 video, for
-social posts.
-
-Before the site goes public, replace any clip made from someone else's video with one made
-from your own video or one you have permission to use, then rebuild the preview image. To cut a
-new loop from an export:
-
-```
-ffmpeg -ss 2 -t 8 -i path/to/clip.mp4 -an -vf "scale=540:960,fps=30" -c:v libx264 -crf 27 -preset slow -pix_fmt yuv420p -movflags +faststart public/media/clip-1.mp4
-ffmpeg -ss 3 -i public/media/clip-1.mp4 -frames:v 1 -q:v 4 public/media/clip-1.jpg
-```
-
-## Credits
-
-- Animations: [Motion](https://motion.dev) (the successor of Framer Motion).
-- AI provider logos: [@lobehub/icons-static-svg](https://github.com/lobehub/lobe-icons) 1.106.0
-  (MIT). They are trademarks of their owners and are shown only to say which providers Kliprix
-  works with.
-- Fonts: Inter and Montserrat ExtraBold (Google Fonts, self-hosted at build time).
-  `scripts/assets/Montserrat-ExtraBold.ttf` is used only by the preview-image script
-  (SIL Open Font License, see `scripts/assets/OFL-Montserrat.txt`).
+MIT, like [the app](https://github.com/sandeshlawhale/Kliprix).
